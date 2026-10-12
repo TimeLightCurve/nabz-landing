@@ -91,3 +91,10 @@
   .availability-links { margin-top: 16px; }
 }
 @media(prefers-reduced-motion: reduce) { .product-details { animation: none; } }
+@media(max-height: 620px) {
+  .product-details { top: 95px; bottom: 85px; padding-top: 0; padding-bottom: 0; overflow-y: auto; overscroll-behavior: contain; }
+  .details-glass { min-height: 440px; flex-shrink: 0; }
+  .details-intro { padding-top: 20px; padding-bottom: 20px; }
+  .availability-panel { margin-top: 0; margin-bottom: 16px; }
+  .side-index { display: none; }
+}

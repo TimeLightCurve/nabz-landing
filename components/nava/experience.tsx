@@ -62,7 +62,7 @@ export default function Experience({ children }: { children: ReactNode }) {
         <span className="header-caption">A LITTLE CLOSER TO YOUR MIND</span>
         <button ref={menuButton} className="menu-toggle" aria-expanded={menu} aria-controls="chapter-menu" onClick={() => setMenu(!menu)}><span>{menu ? 'CLOSE' : 'EXPLORE'}</span><span className={`menu-icon ${menu ? 'is-open' : ''}`}><i /><i /><i /><i /></span></button>
       </header>
-      {menu && <nav id="chapter-menu" className="chapter-menu" aria-label="Explore NAVA">{CHAPTERS.map((item, i) => <a ref={i === 0 ? firstLink : undefined} key={item.id} href={`#${item.id}`} aria-current={i === chapter ? 'step' : undefined} onClick={e => { e.preventDefault(); navigate(i); }}><span>0{i + 1}</span>{item.label}<span>↗</span></a>)}</nav>}
+      {menu && <nav id="chapter-menu" className="chapter-menu" data-lenis-prevent aria-label="Explore NAVA">{CHAPTERS.map((item, i) => <a ref={i === 0 ? firstLink : undefined} key={item.id} href={`#${item.id}`} aria-current={i === chapter ? 'step' : undefined} onClick={e => { e.preventDefault(); navigate(i); }}><span>0{i + 1}</span>{item.label}<span>↗</span></a>)}</nav>}
       <div className="copy-stack">{children}</div>
       <ProductDetails chapter={chapter} />
       <aside className="side-index" aria-label="Chapter navigation">{CHAPTERS.map((item, i) => <button key={item.id} aria-label={item.label} aria-current={i === chapter ? 'step' : undefined} onClick={() => navigate(i)}><span>0{i + 1}</span><i /></button>)}</aside>
