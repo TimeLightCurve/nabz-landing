@@ -4,6 +4,8 @@ import "./globals.css";
 import "./refinements.css";
 import "./product-details.css";
 import "./navigation.css";
+import "./locale.css";
+import { LocaleProvider } from "@/components/nava/locale";
 import "lenis/dist/lenis.css";
 
 const geistSans = Geist({
@@ -28,7 +30,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body>{children}</body>
+      <body><LocaleProvider>{children}</LocaleProvider></body>
     </html>
   );
 }

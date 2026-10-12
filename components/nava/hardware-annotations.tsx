@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type RefObject } from 'react';
 import { Camera, Vector3 } from 'three';
+import { useLocale } from './locale';
 import { sampleAnnotations, storyProgress } from '@/lib/nava/timeline';
 
 export type HardwareAnchors = { microphone: Vector3; magnet: Vector3; center: Vector3; ready: boolean };
@@ -9,6 +10,9 @@ export type HardwareAnchors = { microphone: Vector3; magnet: Vector3; center: Ve
 export default function HardwareAnnotations({ progress, anchors, reducedMotion, cameraRef }: {
   progress: RefObject<number>; anchors: RefObject<HardwareAnchors>; reducedMotion: boolean; cameraRef: RefObject<Camera | null>;
 }) {
+  const { locale, t } = useLocale();
+  const rtl = locale === 'fa';
+  const direction = rtl ? -1 : 1;
   const [size, setSize] = useState({ width: 1440, height: 900 });
   const w = size.width; const h = size.height;
   const mobile = w < 768;
@@ -35,23 +39,24 @@ export default function HardwareAnnotations({ progress, anchors, reducedMotion, 
   const bottomLabel = useRef<SVGTextElement>(null);
   const bottomCaption = useRef<SVGTextElement>(null);
   const projected = useRef(new Vector3());
-  const endX = w * (mobile ? .9 : w < 1100 ? .7 : .735);
+  const endRatio = mobile ? .9 : w < 1100 ? .7 : .735;
+  const endX = w * (rtl ? 1 - endRatio : endRatio);
   const topY = h * (mobile ? .37 : .21);
   const bottomY = h * (mobile ? .76 : .745);
-  const textX = mobile ? endX : endX + 24;
+  const textX = mobile ? endX : endX + direction * 24;
   const textAnchor = mobile ? 'end' : 'start';
   // Keep the elbows and label runs authored; only the attachment segment follows the mesh.
   const startX = w * (mobile ? .48 : .62);
   const upperStartY = h * .43;
   const lowerStartY = h * .61;
-  const bendX = endX - w * (mobile ? .1 : .12);
+  const bendX = endX - direction * w * (mobile ? .1 : .12);
   const leader = (x: number, y: number, endY: number) => {
     const dx = bendX - x; const dy = endY - y;
     const length = Math.hypot(dx, dy);
-    const round = Math.min(mobile ? 24 : 52, length * .3, (endX - bendX) * .4);
+    const round = Math.min(mobile ? 24 : 52, length * .3, Math.abs(endX - bendX) * .4);
     const enterX = bendX - dx / Math.max(1, length) * round;
     const enterY = endY - dy / Math.max(1, length) * round;
-    return `M ${x} ${y} L ${enterX} ${enterY} Q ${bendX} ${endY} ${bendX + round} ${endY} L ${endX} ${endY}`;
+    return `M ${x} ${y} L ${enterX} ${enterY} Q ${bendX} ${endY} ${bendX + direction * round} ${endY} L ${endX} ${endY}`;
   };
 
   useEffect(() => {
@@ -80,7 +85,7 @@ export default function HardwareAnnotations({ progress, anchors, reducedMotion, 
     tip.current?.setAttribute('cx', `${cx + Math.cos(angle) * radius}`);
     tip.current?.setAttribute('cy', `${cy + Math.sin(angle) * radius}`);
     const necklace = p >= .79;
-    root.current.setAttribute('aria-label', necklace ? 'NAVA magnetic necklace: one device, two ways to wear.' : 'NAVA hardware: built-in microphone and magnetic attachment contacts');
+    root.current.setAttribute('aria-label', t(necklace ? 'NAVA magnetic necklace: one device, two ways to wear.' : 'NAVA hardware: built-in microphone and magnetic attachment contacts'));
     const reveal = necklace ? state.necklaceLabels : state.labels;
     // Assign the upper screen-space anchor to the upper lane. Keep its label
     // identity with it, so orbiting never creates an X between the two leaders.
@@ -104,16 +109,16 @@ export default function HardwareAnnotations({ progress, anchors, reducedMotion, 
     const magnetCopy = necklace ? ['ONE DEVICE. TWO WAYS.', 'From wrist to necklace.'] : ['MAGNETIC CONTACTS', 'One device. Two ways to wear.'];
     const upperCopy = micAbove ? microphoneCopy : magnetCopy;
     const lowerCopy = micAbove ? magnetCopy : microphoneCopy;
-    if (topLabel.current) topLabel.current.textContent = upperCopy[0];
-    if (topCaption.current) topCaption.current.textContent = upperCopy[1];
-    if (bottomLabel.current) bottomLabel.current.textContent = lowerCopy[0];
-    if (bottomCaption.current) bottomCaption.current.textContent = lowerCopy[1];
+    if (topLabel.current) topLabel.current.textContent = t(upperCopy[0]);
+    if (topCaption.current) topCaption.current.textContent = t(upperCopy[1]);
+    if (bottomLabel.current) bottomLabel.current.textContent = t(lowerCopy[0]);
+    if (bottomCaption.current) bottomCaption.current.textContent = t(lowerCopy[1]);
     };
     frame = requestAnimationFrame(update);
     return () => cancelAnimationFrame(frame);
   });
 
-  return <svg ref={root} className="hardware-annotations" width={w} height={h} viewBox={`0 0 ${w} ${h}`} style={{ opacity: 0, visibility: 'hidden' }} role="img" aria-label="NAVA hardware: built-in microphone and magnetic attachment contacts">
+  return <svg ref={root} className="hardware-annotations" direction={rtl ? "rtl" : "ltr"} width={w} height={h} viewBox={`0 0 ${w} ${h}`} style={{ opacity: 0, visibility: 'hidden' }} role="img" aria-label="NAVA hardware: built-in microphone and magnetic attachment contacts">
       <circle ref={arc} pathLength={1} strokeDasharray="1" strokeDashoffset="1" fill="none" className="hardware-orbit" />
       <circle ref={tip} r={2.5} className="orbit-tip" />
       <g ref={leaders} className="hardware-leaders">

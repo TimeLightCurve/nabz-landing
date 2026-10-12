@@ -1,3 +1,4 @@
+import { useLocale } from './locale';
 const panels = [
   {
     title: 'Memory.', eyebrow: '06 / A LITTLE MORE PRESENT', heading: 'Be here.\nRemember later.',
@@ -35,17 +36,19 @@ const panels = [
 ];
 
 export default function ProductDetails({ chapter }: { chapter: number }) {
+  const { t } = useLocale();
   if (chapter < 5) return null;
-  if (chapter === 8) return <section className="product-details product-availability" data-lenis-prevent aria-label="Explore NAVA">
-    <div className="details-intro"><h2>Your next<br />thought starts here.</h2><p>Meet the app today.<br />Follow the wearable as it takes shape.</p></div>
+  if (chapter === 8) return <section className="product-details product-availability" data-lenis-prevent aria-label={t("Explore NAVA")}>
+    <div className="details-intro"><h2>{t('Your next')}<br />{t('thought starts here.')}</h2><p>{t('Meet the app today.')}<br />{t('Follow the wearable as it takes shape.')}</p></div>
     <div className="availability-panel" style={{ backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}>
-      <p className="details-eyebrow">NAVA / BY NABZ</p><h3>Make room<br />for the moment.</h3>
-      <p>The NAVA app is in pilot. The wearable is a concept in development and is not yet available to buy.</p>
-      <div className="availability-actions"><a className="details-primary" href="https://nabzlab.com/app/nava">Open NAVA <span aria-hidden="true">↗</span></a><a href="https://nabzlab.com/download">Get the app <span aria-hidden="true">↗</span></a></div>
-      <div className="availability-links"><a href="https://nabzlab.com/roadmap">Follow the roadmap ↗</a><a href="https://nabzlab.com/business/workspace">NAVA for your team ↗</a></div>
+      <p className="details-eyebrow">{t('NAVA / BY NABZ')}</p><h3>{t('Make room')}<br />{t('for the moment.')}</h3>
+      <p>{t('The NAVA app is in pilot. The wearable is a concept in development and is not yet available to buy.')}</p>
+      <div className="availability-actions"><a className="details-primary" href="https://nabzlab.com/app/nava">{t('Open NAVA')}<span aria-hidden="true">↗</span></a><a href="https://nabzlab.com/download">{t('Get the app')}<span aria-hidden="true">↗</span></a></div>
+      <div className="availability-links"><a href="https://nabzlab.com/roadmap">{t('Follow the roadmap ↗')}</a><a href="https://nabzlab.com/business/workspace">{t('NAVA for your team ↗')}</a></div>
     </div>
   </section>;
-  const panel = panels[chapter - 5];
+  const source = panels[chapter - 5];
+  const panel = source && { ...source, title: t(source.title), heading: t(source.heading), description: t(source.description), status: t(source.status), linkLabel: t(source.linkLabel), cards: source.cards.map(c => ({ label: t(c.label), value: t(c.value), detail: t(c.detail) })) };
   if (!panel) return null;
   return <section className="product-details" data-lenis-prevent aria-label={panel.title} key={chapter}>
     <div className="details-intro"><h2>{panel.heading.split('\n').map((line, i) => <span key={line}>{i > 0 && <br />}{line}</span>)}</h2><p>{panel.description}</p></div>
