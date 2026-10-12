@@ -1,9 +1,9 @@
 import { Euler, Vector3 } from 'three';
-import { presentation, sampleStory, storyProgress, smooth } from './timeline.ts';
+import { presentation, sampleStory, storyProgress, smooth, STORY_END } from './timeline.ts';
 type Vec3 = [number, number, number];
 
 export function sampleScrollCamera(progress: number, reducedMotion: boolean, mobile: boolean, aspect = mobile ? .46 : 1.6): { position: Vec3; target: Vec3 } {
-  const p = storyProgress(Number.isFinite(progress) ? Math.max(0, Math.min(1, progress)) : 0, reducedMotion);
+  const p = storyProgress(Number.isFinite(progress) ? Math.max(0, Math.min(STORY_END, progress)) : 0, reducedMotion);
   const amount = mobile ? .55 : 1;
   const pose = sampleStory(p);
   const framing = presentation(p, mobile);
@@ -13,7 +13,7 @@ export function sampleScrollCamera(progress: number, reducedMotion: boolean, mob
   const elevation = reducedMotion ? 0 : Math.sin(p * Math.PI * 2) * .22 * amount;
   const pitch = 1.08 * (1 - smooth(.04, .33, p));
   const fit = Math.max(1, (mobile ? .42 : .98) / Math.max(.2, aspect));
-  const distance = (reducedMotion ? 10 + 5 * smooth(.74, .82, p) * (1 - close) : (12 - 2.2 * smooth(0, .27, p) - .25 * p + 5 * smooth(.74, .82, p)) * (1 - close) + (mobile ? 4.5 : 4.2) * close) * fit;
+  const distance = (p > 1 ? (mobile ? 4.5 : 4.2) + smooth(1, 1.14, p) * 1.8 : reducedMotion ? 10 + 5 * smooth(.74, .82, p) * (1 - close) : (12 - 2.2 * smooth(0, .27, p) - .25 * p + 5 * smooth(.74, .82, p)) * (1 - close) + (mobile ? 4.5 : 4.2) * close) * fit;
   return {
     position: [track.x + Math.sin(orbit) * distance * Math.cos(pitch), track.y + Math.sin(pitch) * distance + elevation, track.z + Math.cos(orbit) * distance * Math.cos(pitch)],
     target: [track.x, track.y, track.z],

@@ -1,13 +1,28 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { sampleStory, TRANSFER_DISTANCE, sampleAnnotations } from '../lib/nava/timeline.ts';
+import { sampleStory, TRANSFER_DISTANCE, sampleAnnotations, STORY_END, CHAPTERS, chapterAt } from '../lib/nava/timeline.ts';
 
 test('endpoints dock exactly and invalid progress clamps safely', () => {
   assert.deepEqual(sampleStory(0).device.position, [0, .165, 0]);
   assert.deepEqual(sampleStory(1).device.position, [TRANSFER_DISTANCE, .165, 0]);
   assert.deepEqual(sampleStory(-2), sampleStory(0));
-  assert.deepEqual(sampleStory(4), sampleStory(1));
+  assert.deepEqual(sampleStory(4), sampleStory(STORY_END));
   assert.deepEqual(sampleStory(NaN), sampleStory(0));
+});
+
+test('the details sequence releases the necklace continuously and maps every navigation target', () => {
+  const docked = sampleStory(1);
+  const firstFrame = sampleStory(1 + 1e-6);
+  assert.ok(Math.abs(firstFrame.scale - docked.scale) < .001);
+  assert.ok(Math.abs(firstFrame.device.position[1] - docked.device.position[1]) < .001);
+  assert.equal(sampleStory(1.2).necklaceOpacity, 0);
+  assert.ok(sampleStory(1.2).device.position[1] > docked.device.position[1] + 1);
+  assert.ok(sampleStory(1.6).device.rotation[1] > sampleStory(1.2).device.rotation[1]);
+  CHAPTERS.forEach((chapter, index) => assert.equal(chapterAt(chapter.progress), index));
+  for (let p = 1; p <= STORY_END; p += .01) {
+    assert.ok(!JSON.stringify(sampleStory(p)).includes('null'));
+    assert.equal(sampleAnnotations(p).opacity, 0);
+  }
 });
 test('all poses stay finite and are independent of sampling order', () => {
   for (let i = 0; i <= 1000; i++) {

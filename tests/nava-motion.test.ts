@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { sampleFloat, sampleScrollCamera } from '../lib/nava/motion.ts';
-import { sampleStory } from '../lib/nava/timeline.ts';
+import { sampleStory, STORY_END } from '../lib/nava/timeline.ts';
 import { PerspectiveCamera, Vector3 } from 'three';
 
 test('float moves over time within a subtle bounded envelope', () => {
@@ -73,7 +73,7 @@ test('camera and product rotation respond to every scroll interval, including th
 
 test('scroll camera is deterministic, clamps progress and respects reduced motion', () => {
   assert.deepEqual(sampleScrollCamera(-1, false, false), sampleScrollCamera(0, false, false));
-  assert.deepEqual(sampleScrollCamera(2, false, false), sampleScrollCamera(1, false, false));
+  assert.deepEqual(sampleScrollCamera(2, false, false), sampleScrollCamera(STORY_END, false, false));
   for (const p of [0, .2, .5, .8, 1]) {
     const reduced = sampleScrollCamera(p, true, false);
     const reducedDistance = Math.hypot(...reduced.position.map((v, i) => v - reduced.target[i]));

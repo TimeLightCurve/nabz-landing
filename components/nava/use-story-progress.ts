@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useRef, useState, type RefObject } from 'react';
-import { CHAPTERS } from '@/lib/nava/timeline';
+import { CHAPTERS, STORY_END, chapterAt } from '@/lib/nava/timeline';
 import Lenis from 'lenis';
 export function useStoryProgress(container: RefObject<HTMLElement | null>) {
   const progress = useRef(0);
@@ -13,9 +13,9 @@ export function useStoryProgress(container: RefObject<HTMLElement | null>) {
       if (!el) return;
       const range = el.offsetHeight - window.innerHeight;
       const p = Math.max(0, Math.min(1, -el.getBoundingClientRect().top / Math.max(1, range)));
-      progress.current = p;
+      progress.current = p * STORY_END;
       el.style.setProperty('--progress', `${p}`);
-      setChapter(p < .17 ? 0 : p < .33 ? 1 : p < .78 ? 2 : p < .94 ? 3 : 4);
+      setChapter(chapterAt(p * STORY_END));
       frame = 0;
     };
     const schedule = () => { if (!frame) frame = requestAnimationFrame(update); };
@@ -53,7 +53,7 @@ export function jumpToChapter(container: HTMLElement | null, index: number, redu
   if (!container) return;
   const start = container.getBoundingClientRect().top + window.scrollY;
   const range = container.offsetHeight - window.innerHeight;
-  const top = start + CHAPTERS[index].progress * range;
+  const top = start + CHAPTERS[index].progress / STORY_END * range;
   if (lenis) lenis.scrollTo(top, { immediate: reduced });
   else window.scrollTo({ top, behavior: reduced ? 'instant' : 'smooth' });
   window.history.replaceState(null, '', `#${CHAPTERS[index].id}`);

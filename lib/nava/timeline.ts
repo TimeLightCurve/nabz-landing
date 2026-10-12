@@ -1,5 +1,6 @@
 export type Vec3 = [number, number, number];
 export const TRANSFER_DISTANCE = 14;
+export const STORY_END = 1.8;
 export type StoryPose = {
   device: { position: Vec3; rotation: Vec3 };
   wristX: number; necklaceX: number; wristOpacity: number; necklaceOpacity: number;
@@ -11,13 +12,31 @@ export const CHAPTERS = [
   { id: 'move', label: 'Hardware, considered', progress: .5 },
   { id: 'connect', label: 'Magnetic by nature', progress: .86 },
   { id: 'with-you', label: 'Always with you', progress: 1 },
+  { id: 'memory', label: 'Your memory', progress: 1.13 },
+  { id: 'review', label: 'From voice to action', progress: 1.33 },
+  { id: 'privacy', label: 'Yours to control', progress: 1.52 },
+  { id: 'explore-nava', label: 'Explore NAVA', progress: 1.75 },
 ] as const;
+export function chapterAt(p: number) {
+  return p < .17 ? 0 : p < .33 ? 1 : p < .78 ? 2 : p < .94 ? 3 : p < 1.06 ? 4 : p < 1.25 ? 5 : p < 1.44 ? 6 : p < 1.64 ? 7 : 8;
+}
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 export const smooth = (a: number, b: number, p: number) => {
   const t = Math.max(0, Math.min(1, (p - a) / (b - a)));
   return t * t * (3 - 2 * t);
 };
 export function sampleStory(value: number): StoryPose {
+  if (value > 1) {
+    const p = Math.min(STORY_END, value);
+    const pose = sampleStory(1);
+    const release = smooth(1, 1.14, p);
+    return { ...pose,
+      device: { position: [TRANSFER_DISTANCE, .165 + release * 1.4, 0], rotation: [.08 * Math.sin((p - 1) * 3), (p - 1) * 1.8, -.12 * release] },
+      necklaceOpacity: 1 - smooth(1.04, 1.16, p),
+      scale: lerp(.57, 1.05, release),
+      glow: .12 * (1 - release),
+    };
+  }
   const p = Number.isFinite(value) ? Math.min(1, Math.max(0, value)) : 0;
   const lift = smooth(.14, .28, p);
   const transfer = smooth(.28, .82, p);
@@ -43,6 +62,7 @@ export function sampleStory(value: number): StoryPose {
 }
 
 export function storyProgress(p: number, reduced: boolean) {
+  if (p > 1) return reduced ? CHAPTERS[chapterAt(p)].progress : Math.min(STORY_END, p);
   return reduced ? (p < .17 ? 0 : p < .33 ? .26 : p < .78 ? .52 : p < .94 ? .92 : 1) : p;
 }
 

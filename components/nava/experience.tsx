@@ -1,10 +1,11 @@
 'use client';
 import dynamic from 'next/dynamic';
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
-import { CHAPTERS } from '@/lib/nava/timeline';
+import { CHAPTERS, STORY_END } from '@/lib/nava/timeline';
 import { jumpToChapter, useStoryProgress } from './use-story-progress';
 import SceneBoundary from './scene-boundary';
 import HardwareAnnotations from './hardware-annotations';
+import ProductDetails from './product-details';
 import { Camera, Vector3 } from 'three';
 const Scene = dynamic(() => import('./scene'), { ssr: false });
 export default function Experience({ children }: { children: ReactNode }) {
@@ -47,7 +48,7 @@ export default function Experience({ children }: { children: ReactNode }) {
     jumpToChapter(container.current, index, reduced, lenis.current); setMenu(false); menuButton.current?.focus({ preventScroll: true });
   }
   return <main ref={container} className="nava-story" data-chapter={chapter} data-ready={ready}>
-    <div className="chapter-anchors" aria-hidden="true">{CHAPTERS.map(item => <span id={item.id} key={item.id} style={{ top: `${item.progress * 100}%` }} />)}</div>
+    <div className="chapter-anchors" aria-hidden="true">{CHAPTERS.map(item => <span id={item.id} key={item.id} style={{ top: `${item.progress / STORY_END * 100}%` }} />)}</div>
     <div className="experience-stage">
       <div className="ambient-backdrop" /><div className="grain" />
       <div className="scene-layer">
@@ -63,10 +64,11 @@ export default function Experience({ children }: { children: ReactNode }) {
       </header>
       {menu && <nav id="chapter-menu" className="chapter-menu" aria-label="Explore NAVA">{CHAPTERS.map((item, i) => <a ref={i === 0 ? firstLink : undefined} key={item.id} href={`#${item.id}`} aria-current={i === chapter ? 'step' : undefined} onClick={e => { e.preventDefault(); navigate(i); }}><span>0{i + 1}</span>{item.label}<span>↗</span></a>)}</nav>}
       <div className="copy-stack">{children}</div>
+      <ProductDetails chapter={chapter} />
       <aside className="side-index" aria-label="Chapter navigation">{CHAPTERS.map((item, i) => <button key={item.id} aria-label={item.label} aria-current={i === chapter ? 'step' : undefined} onClick={() => navigate(i)}><span>0{i + 1}</span><i /></button>)}</aside>
       <footer className="experience-footer">
-        <div className="chapter-counter"><span>0{chapter + 1}</span><i /><span>05</span></div>
-        <button className="scroll-prompt" onClick={() => navigate(chapter === 4 ? 0 : chapter + 1)}><span className={chapter === 4 ? 'replay-symbol' : 'scroll-symbol'}>{chapter === 4 ? '↺' : '↓'}</span><span>{chapter === 4 ? 'EXPERIENCE AGAIN' : 'SCROLL TO DISCOVER'}</span></button>
+        <div className="chapter-counter"><span>0{chapter + 1}</span><i /><span>{String(CHAPTERS.length).padStart(2, '0')}</span></div>
+        <button className="scroll-prompt" onClick={() => navigate(chapter === CHAPTERS.length - 1 ? 0 : chapter + 1)}><span className={chapter === CHAPTERS.length - 1 ? 'replay-symbol' : 'scroll-symbol'}>{chapter === CHAPTERS.length - 1 ? '↺' : '↓'}</span><span>{chapter === CHAPTERS.length - 1 ? 'EXPERIENCE AGAIN' : 'SCROLL TO DISCOVER'}</span></button>
         <div className="footer-caption"><span className="status-dot" /> AI NOTE-TAKING. REIMAGINED.</div>
       </footer>
       {!ready && !failed && webgl && <div className="loading-indicator" role="status">PREPARING YOUR EXPERIENCE <span>···</span></div>}
