@@ -20,6 +20,8 @@ Desktop screenshot capture timed out through the available Windows tool, and nat
 
 ## Implementation notes
 
+Layout refinement: grouped desktop chapter heading and description into one centered left column, hid the redundant hardware note, widened/rounded the menu, centered footer controls with a three-column grid, and moved annotation labels inward. Dedicated refinements stylesheet avoids the stale global stylesheet cache seen in the dev preview. Inspected updated desktop 1840×980 and mobile 390×844 screenshots with visible circle/callouts and readable controls. Production build passes.
+
 Annotation/UI correction: removed Drei Html entirely for hardware annotations. The SVG now mounts in the normal page DOM above the canvas, with a live camera ref for projecting hardware anchors; HTTP inspection confirms the SVG and label text are present in the served page. Device spin is bounded to a gentle 0.65-radian Y sweep with small X/Z accents, while the camera keeps its orbit. Enlarged header/menu captions, chapter tags, navigation counters, footer text, and scroll control with mobile overrides. All 16 tests and production build pass; targeted lint has no errors. The visual-capture limitation still applies.
 
 Opening choreography refinement: camera begins approximately 62 degrees above the device, pushes inward and levels by .33 as the assembly rises 2.5 world units. A horizontal ground-wave shader adds softly glowing expanding rings, fading by .42. Hardware leader attachment tips project actual mesh anchors while elbows and label runs stay fixed. Restored a full device-local Y rotation alongside the existing Z turn, ending at an equivalent docking orientation. All 16 motion/framing tests and targeted lint pass; GPU visual checks remain unavailable.

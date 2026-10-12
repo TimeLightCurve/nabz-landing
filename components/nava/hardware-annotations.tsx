@@ -35,8 +35,8 @@ export default function HardwareAnnotations({ progress, anchors, reducedMotion, 
   const bottomLabel = useRef<SVGTextElement>(null);
   const bottomCaption = useRef<SVGTextElement>(null);
   const projected = useRef(new Vector3());
-  const endX = w * (mobile ? .9 : w < 1100 ? .72 : .785);
-  const topY = h * (mobile ? .37 : .245);
+  const endX = w * (mobile ? .9 : w < 1100 ? .7 : .735);
+  const topY = h * (mobile ? .37 : .21);
   const bottomY = h * (mobile ? .76 : .745);
   const textX = mobile ? endX : endX + 24;
   const textAnchor = mobile ? 'end' : 'start';
