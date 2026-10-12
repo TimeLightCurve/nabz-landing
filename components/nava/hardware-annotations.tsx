@@ -29,7 +29,7 @@ export default function HardwareAnnotations({ progress, anchors, reducedMotion, 
   const bottomPath = useRef<SVGPathElement>(null);
   const topDot = useRef<SVGCircleElement>(null);
   const bottomDot = useRef<SVGCircleElement>(null);
-  const attachment = useRef(new Vector3());
+  const attachment = useRef([new Vector3(), new Vector3()]);
   const topLabel = useRef<SVGTextElement>(null);
   const topCaption = useRef<SVGTextElement>(null);
   const bottomLabel = useRef<SVGTextElement>(null);
@@ -45,7 +45,14 @@ export default function HardwareAnnotations({ progress, anchors, reducedMotion, 
   const upperStartY = h * .43;
   const lowerStartY = h * .61;
   const bendX = endX - w * (mobile ? .1 : .12);
-  const leader = (x: number, y: number, endY: number, upper: boolean) => `M ${x} ${y} L ${bendX - w * .035} ${endY + (upper ? 1 : -1) * h * .045} Q ${bendX} ${endY} ${bendX + w * .04} ${endY} L ${endX} ${endY}`;
+  const leader = (x: number, y: number, endY: number) => {
+    const dx = bendX - x; const dy = endY - y;
+    const length = Math.hypot(dx, dy);
+    const round = Math.min(mobile ? 24 : 52, length * .3, (endX - bendX) * .4);
+    const enterX = bendX - dx / Math.max(1, length) * round;
+    const enterY = endY - dy / Math.max(1, length) * round;
+    return `M ${x} ${y} L ${enterX} ${enterY} Q ${bendX} ${endY} ${bendX + round} ${endY} L ${endX} ${endY}`;
+  };
 
   useEffect(() => {
     let frame = 0;
@@ -75,21 +82,32 @@ export default function HardwareAnnotations({ progress, anchors, reducedMotion, 
     const necklace = p >= .79;
     root.current.setAttribute('aria-label', necklace ? 'NAVA magnetic necklace: one device, two ways to wear.' : 'NAVA hardware: built-in microphone and magnetic attachment contacts');
     const reveal = necklace ? state.necklaceLabels : state.labels;
-    const trackAttachment = (point: Vector3, path: SVGPathElement | null, dot: SVGCircleElement | null, endY: number, upper: boolean) => {
-      const v = attachment.current.copy(point).project(camera);
-      const x = (v.x + 1) * w / 2; const y = (1 - v.y) * h / 2;
-      path?.setAttribute('d', leader(x, y, endY, upper));
+    // Assign the upper screen-space anchor to the upper lane. Keep its label
+    // identity with it, so orbiting never creates an X between the two leaders.
+    const [mic, magnet] = attachment.current;
+    mic.copy(anchors.current.microphone).project(camera);
+    magnet.copy(anchors.current.magnet).project(camera);
+    const micAbove = mic.y >= magnet.y;
+    const upper = micAbove ? mic : magnet;
+    const lower = micAbove ? magnet : mic;
+    const trackAttachment = (point: Vector3, path: SVGPathElement | null, dot: SVGCircleElement | null, endY: number) => {
+      const x = (point.x + 1) * w / 2; const y = (1 - point.y) * h / 2;
+      path?.setAttribute('d', leader(x, y, endY));
       dot?.setAttribute('cx', `${x}`); dot?.setAttribute('cy', `${y}`);
     };
-    trackAttachment(anchors.current.microphone, topPath.current, topDot.current, topY, true);
-    trackAttachment(anchors.current.magnet, bottomPath.current, bottomDot.current, bottomY, false);
+    trackAttachment(upper, topPath.current, topDot.current, topY);
+    trackAttachment(lower, bottomPath.current, bottomDot.current, bottomY);
     if (leaders.current) leaders.current.style.opacity = `${reveal}`;
     topPath.current?.setAttribute('stroke-dashoffset', `${1 - reveal}`);
     bottomPath.current?.setAttribute('stroke-dashoffset', `${1 - reveal}`);
-    if (topLabel.current) topLabel.current.textContent = necklace ? 'MAGNETIC NECKLACE' : 'BUILT-IN MICROPHONE';
-    if (topCaption.current) topCaption.current.textContent = necklace ? 'A connection that clicks.' : 'Capture the thought.';
-    if (bottomLabel.current) bottomLabel.current.textContent = necklace ? 'ONE DEVICE. TWO WAYS.' : 'MAGNETIC CONTACTS';
-    if (bottomCaption.current) bottomCaption.current.textContent = necklace ? 'From wrist to necklace.' : 'One device. Two ways to wear.';
+    const microphoneCopy = necklace ? ['MAGNETIC NECKLACE', 'A connection that clicks.'] : ['BUILT-IN MICROPHONE', 'Capture the thought.'];
+    const magnetCopy = necklace ? ['ONE DEVICE. TWO WAYS.', 'From wrist to necklace.'] : ['MAGNETIC CONTACTS', 'One device. Two ways to wear.'];
+    const upperCopy = micAbove ? microphoneCopy : magnetCopy;
+    const lowerCopy = micAbove ? magnetCopy : microphoneCopy;
+    if (topLabel.current) topLabel.current.textContent = upperCopy[0];
+    if (topCaption.current) topCaption.current.textContent = upperCopy[1];
+    if (bottomLabel.current) bottomLabel.current.textContent = lowerCopy[0];
+    if (bottomCaption.current) bottomCaption.current.textContent = lowerCopy[1];
     };
     frame = requestAnimationFrame(update);
     return () => cancelAnimationFrame(frame);
@@ -99,7 +117,7 @@ export default function HardwareAnnotations({ progress, anchors, reducedMotion, 
       <circle ref={arc} pathLength={1} strokeDasharray="1" strokeDashoffset="1" fill="none" className="hardware-orbit" />
       <circle ref={tip} r={2.5} className="orbit-tip" />
       <g ref={leaders} className="hardware-leaders">
-        <path ref={topPath} d={leader(startX, upperStartY, topY, true)} pathLength={1} strokeDasharray="1" fill="none" /><path ref={bottomPath} d={leader(startX, lowerStartY, bottomY, false)} pathLength={1} strokeDasharray="1" fill="none" />
+        <path ref={topPath} d={leader(startX, upperStartY, topY)} pathLength={1} strokeDasharray="1" fill="none" /><path ref={bottomPath} d={leader(startX, lowerStartY, bottomY)} pathLength={1} strokeDasharray="1" fill="none" />
         <circle ref={topDot} cx={startX} cy={upperStartY} r={2.7} /><circle ref={bottomDot} cx={startX} cy={lowerStartY} r={2.7} />
         <circle cx={endX} cy={topY} r={1.8} /><circle cx={endX} cy={bottomY} r={1.8} />
         <text ref={topLabel} x={textX} y={topY + (mobile ? -34 : -4)} textAnchor={textAnchor} className="hardware-label">BUILT-IN MICROPHONE</text>
