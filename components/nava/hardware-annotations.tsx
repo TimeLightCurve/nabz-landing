@@ -3,7 +3,7 @@
 import { Html } from '@react-three/drei';
 import { useFrame, useThree } from '@react-three/fiber';
 import { useRef, type RefObject } from 'react';
-import { Vector3 } from 'three';
+import { Group, Vector3 } from 'three';
 import { sampleAnnotations, storyProgress } from '@/lib/nava/timeline';
 
 export type HardwareAnchors = { microphone: Vector3; magnet: Vector3; center: Vector3; ready: boolean };
@@ -13,6 +13,7 @@ export default function HardwareAnnotations({ progress, anchors, reducedMotion, 
 }) {
   const { size } = useThree();
   const root = useRef<SVGSVGElement>(null);
+  const overlayAnchor = useRef<Group>(null);
   const arc = useRef<SVGCircleElement>(null);
   const tip = useRef<SVGCircleElement>(null);
   const leaders = useRef<SVGGElement>(null);
@@ -38,6 +39,10 @@ export default function HardwareAnnotations({ progress, anchors, reducedMotion, 
 
   useFrame(({ camera }) => {
     if (!root.current || !anchors.current.ready) return;
+    if (overlayAnchor.current) {
+      overlayAnchor.current.position.copy(anchors.current.center);
+      overlayAnchor.current.updateMatrixWorld(true);
+    }
     const p = storyProgress(progress.current, reducedMotion);
     const state = sampleAnnotations(p);
     root.current.style.opacity = `${state.opacity}`;
@@ -69,7 +74,8 @@ export default function HardwareAnnotations({ progress, anchors, reducedMotion, 
     if (bottomCaption.current) bottomCaption.current.textContent = necklace ? 'From wrist to necklace.' : 'One device. Two ways to wear.';
   });
 
-  return <Html fullscreen calculatePosition={(_, __, viewport) => [viewport.width / 2, viewport.height / 2]} zIndexRange={[3, 3]} style={{ pointerEvents: 'none' }}>
+  // This is a screen-space overlay: visibility belongs to the story, not Html's 3D culling.
+  return <group ref={overlayAnchor}><Html fullscreen onOcclude={() => undefined} eps={0} calculatePosition={(_, __, viewport) => [viewport.width / 2, viewport.height / 2]} zIndexRange={[3, 3]} style={{ pointerEvents: 'none' }}>
     <svg ref={root} className="hardware-annotations" width={w} height={h} viewBox={`0 0 ${w} ${h}`} style={{ opacity: 0, visibility: 'hidden' }} role="img" aria-label="NAVA hardware: built-in microphone and magnetic attachment contacts">
       <circle ref={arc} pathLength={1} strokeDasharray="1" strokeDashoffset="1" fill="none" className="hardware-orbit" />
       <circle ref={tip} r={2.5} className="orbit-tip" />
@@ -83,5 +89,5 @@ export default function HardwareAnnotations({ progress, anchors, reducedMotion, 
         <text ref={bottomCaption} x={textX} y={bottomY + (mobile ? 46 : 20)} textAnchor={textAnchor} className="hardware-caption">One device. Two ways to wear.</text>
       </g>
     </svg>
-  </Html>;
+  </Html></group>;
 }

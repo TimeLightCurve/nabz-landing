@@ -29,9 +29,9 @@ export default function Scene({ progress, reducedMotion, onReady, attempt }: { p
     return () => query.removeEventListener('change', update);
   }, [attempt]);
   if (!cacheReady) return null;
-  return <Canvas aria-label="NAVA device transforming from wristband to necklace" dpr={[1, mobile ? 1.25 : 1.75]} camera={{ position: [0, 0, 10], fov: mobile ? 48 : 36, near: .1, far: 60 }} gl={{ alpha: true, antialias: true, powerPreference: 'high-performance' }}>
+  return <Canvas aria-label="NAVA device transforming from wristband to necklace" dpr={[1, mobile ? 1.25 : 1.75]} camera={{ position: [0, 0, 10], fov: mobile ? 48 : 36, near: .1, far: 120 }} gl={{ alpha: true, antialias: true, powerPreference: 'high-performance' }}>
     <Visibility />
-    <CameraRig progress={progress} reducedMotion={reducedMotion} mobile={mobile} />
+    <CameraRig progress={progress} reducedMotion={reducedMotion} mobile={mobile} anchors={anchors} />
     <ambientLight intensity={.65} color="#9fc9e5" />
     <directionalLight position={[2, 5, 5]} intensity={4} color="#d0eaff" />
     <directionalLight position={[-4, 0, 2]} intensity={5} color="#4cafff" />
@@ -42,7 +42,7 @@ export default function Scene({ progress, reducedMotion, onReady, attempt }: { p
       <Lightformer position={[0, 5, -2]} rotation={[Math.PI / 2, 0, 0]} scale={[6, 2, 1]} intensity={7} color="#e9f6ff" />
       <Lightformer position={[0, -4, 2]} scale={[4, 1, 1]} intensity={2} color="#85d9ec" target={[0, 0, 0]} />
     </Environment>
-    <Atmosphere progress={progress} reducedMotion={reducedMotion} mobile={mobile} />
+    <Atmosphere reducedMotion={reducedMotion} mobile={mobile} anchors={anchors} />
     <Suspense fallback={null}><Product progress={progress} reducedMotion={reducedMotion} mobile={mobile} onReady={onReady} anchors={anchors} /></Suspense>
     <HardwareAnnotations progress={progress} anchors={anchors} reducedMotion={reducedMotion} mobile={mobile} />
   </Canvas>;

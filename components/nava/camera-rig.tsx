@@ -4,8 +4,9 @@ import { useFrame, useThree } from '@react-three/fiber';
 import { useEffect, useRef, type RefObject } from 'react';
 import { MathUtils, Vector2 } from 'three';
 import { sampleScrollCamera } from '@/lib/nava/motion';
+import type { HardwareAnchors } from './hardware-annotations';
 
-export default function CameraRig({ progress, reducedMotion, mobile }: { progress: RefObject<number>; reducedMotion: boolean; mobile: boolean }) {
+export default function CameraRig({ progress, reducedMotion, mobile, anchors }: { progress: RefObject<number>; reducedMotion: boolean; mobile: boolean; anchors: RefObject<HardwareAnchors> }) {
   const { camera, size } = useThree();
   const pointer = useRef(new Vector2());
   const pointerOffset = useRef(new Vector2());
@@ -41,8 +42,11 @@ export default function CameraRig({ progress, reducedMotion, mobile }: { progres
     // Lenis smooths scroll already; only pointer parallax needs extra damping.
     pointerOffset.current.x = reducedMotion ? 0 : MathUtils.damp(pointerOffset.current.x, targetX, 3.5, Math.min(delta, .1));
     pointerOffset.current.y = reducedMotion ? 0 : MathUtils.damp(pointerOffset.current.y, targetY, 3.5, Math.min(delta, .1));
-    camera.position.set(scroll.position[0] + pointerOffset.current.x, scroll.position[1] + pointerOffset.current.y, scroll.position[2]);
-    camera.lookAt(...scroll.target);
+    // Product runs first: follow the actual floating mesh center, not an approximate path.
+    const target = anchors.current.ready ? anchors.current.center : null;
+    const x = target?.x ?? scroll.target[0]; const y = target?.y ?? scroll.target[1]; const z = target?.z ?? scroll.target[2];
+    camera.position.set(scroll.position[0] + x - scroll.target[0] + pointerOffset.current.x, scroll.position[1] + y - scroll.target[1] + pointerOffset.current.y, scroll.position[2] + z - scroll.target[2]);
+    camera.lookAt(x, y, z);
     camera.updateMatrixWorld();
   }, -1);
   return null;

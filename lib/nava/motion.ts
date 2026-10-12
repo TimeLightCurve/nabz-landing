@@ -7,17 +7,12 @@ export function sampleScrollCamera(progress: number, reducedMotion: boolean, mob
   const amount = mobile ? .55 : 1;
   const pose = sampleStory(p);
   const framing = presentation(p, mobile);
-  const track = new Vector3(pose.device.position[0], 0, 0).multiplyScalar(framing.scale).applyEuler(new Euler(...framing.rotation));
   const close = smooth(.92, 1, p);
-  const deviceCenter = new Vector3(...pose.device.position).multiplyScalar(framing.scale).applyEuler(new Euler(...framing.rotation)).add(new Vector3(...framing.position));
-  // Preserve room for the chapter copy, then focus the final shot on the capsule.
-  deviceCenter.x -= mobile ? 0 : .4;
-  deviceCenter.y += mobile ? .65 : .05;
-  track.lerp(deviceCenter, close);
-  const orbit = reducedMotion ? 0 : Math.sin(smooth(.25, .9, p) * Math.PI * 2) * .38 * amount;
+  const track = new Vector3(...pose.device.position).multiplyScalar(framing.scale).applyEuler(new Euler(...framing.rotation)).add(new Vector3(...framing.position));
+  const orbit = reducedMotion ? 0 : smooth(.33, .78, p) * Math.PI * 2;
   const elevation = reducedMotion ? 0 : Math.sin(p * Math.PI * 2) * .22 * amount;
   const fit = Math.max(1, (mobile ? .42 : .98) / Math.max(.2, aspect));
-  const distance = (reducedMotion ? 10 : (12 - 2.2 * smooth(0, .27, p) - .25 * p) * (1 - close) + (mobile ? 4.5 : 4.2) * close) * fit;
+  const distance = (reducedMotion ? 10 + 5 * smooth(.74, .82, p) * (1 - close) : (12 - 2.2 * smooth(0, .27, p) - .25 * p + 5 * smooth(.74, .82, p)) * (1 - close) + (mobile ? 4.5 : 4.2) * close) * fit;
   return {
     position: [track.x + Math.sin(orbit) * distance, track.y + elevation, track.z + Math.cos(orbit) * distance],
     target: [track.x, track.y, track.z],
@@ -31,3 +26,4 @@ export function sampleFloat(time: number, reducedMotion: boolean): { position: V
     rotation: [Math.sin(time * .49) * .012, Math.sin(time * .32) * .016, Math.sin(time * .41) * .01],
   };
 }
+

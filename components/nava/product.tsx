@@ -59,6 +59,6 @@ export default function Product({ progress, reducedMotion, mobile, onReady, anch
     // Shared imperative frame data, consumed by the SVG overlay after this frame callback.
     // eslint-disable-next-line react-hooks/immutability
     anchors.current.ready = true;
-  }, -.5);
+  }, -2);
   return <group ref={stage} dispose={null}><primitive object={assembly.wrist} /><primitive object={assembly.necklace} /><primitive object={assembly.device} /><pointLight ref={magneticLight} position={[0, .85, 0]} intensity={0} distance={3} color="#72d2ff" /></group>;
 }

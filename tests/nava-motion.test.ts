@@ -2,6 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { sampleFloat, sampleScrollCamera } from '../lib/nava/motion.ts';
 import { sampleStory } from '../lib/nava/timeline.ts';
+import { PerspectiveCamera, Vector3 } from 'three';
 
 test('float moves over time within a subtle bounded envelope', () => {
   assert.notDeepEqual(sampleFloat(0, false), sampleFloat(2, false));
@@ -27,6 +28,24 @@ test('camera pushes in, orbits both sides of the device, and ends in a close-up'
   }
 });
 
+test('camera completes one full orbit with its focus centered and in front throughout', () => {
+  let previous = 0; let total = 0;
+  for (let i = 0; i <= 100; i++) {
+    const p = .33 + i / 100 * .45;
+    const pose = sampleScrollCamera(p, false, false);
+    const offset = new Vector3(...pose.position).sub(new Vector3(...pose.target));
+    const angle = Math.atan2(offset.x, offset.z);
+    if (i) total += Math.atan2(Math.sin(angle - previous), Math.cos(angle - previous));
+    previous = angle;
+    const camera = new PerspectiveCamera(36, 1.6, .1, 120);
+    camera.position.set(...pose.position); camera.lookAt(...pose.target); camera.updateMatrixWorld();
+    const center = new Vector3(...pose.target).project(camera);
+    assert.ok(Math.abs(center.x) < 1e-9 && Math.abs(center.y) < 1e-9);
+    assert.ok(center.z > -1 && center.z < 1, 'overlay anchor must remain in front of camera');
+  }
+  assert.ok(Math.abs(total - Math.PI * 2) < 1e-9);
+});
+
 test('camera and product rotation respond to every scroll interval, including the opening and ending', () => {
   for (let i = 0; i < 1000; i++) {
     const a = i / 1000; const b = (i + 1) / 1000;
@@ -44,7 +63,9 @@ test('scroll camera is deterministic, clamps progress and respects reduced motio
     const reduced = sampleScrollCamera(p, true, false);
     assert.ok(Math.abs(reduced.position[0] - reduced.target[0]) < 1e-9);
     assert.ok(Math.abs(reduced.position[1] - reduced.target[1]) < 1e-9);
-    assert.ok(Math.abs(reduced.position[2] - reduced.target[2] - 10) < 1e-9);
+    const reducedDistance = reduced.position[2] - reduced.target[2];
+    assert.ok(reducedDistance >= 10 && reducedDistance <= 15);
+    if (p === .8) assert.equal(reducedDistance, 15, 'reduced necklace view also fits the cord');
     const original = sampleScrollCamera(p, false, true);
     sampleScrollCamera(1 - p, false, true);
     assert.deepEqual(sampleScrollCamera(p, false, true), original);

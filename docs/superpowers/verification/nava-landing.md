@@ -18,6 +18,8 @@ Desktop screenshot capture timed out through the available Windows tool, and nat
 
 ## Implementation notes
 
+Environment/orbit refinement: replaced the finite background plane with a 45-unit inward-facing sphere using seamless direction-based procedural haze. Soft translucent point sprites occupy a 1.8–5.2-unit shell around the device. Product updates before the camera; the camera targets its actual floating world center and performs one full revolution from progress .33–.78. Screen-space annotations opt out of Drei Html's behind-camera hiding and carry a device-centered 3D anchor. Added full-orbit winding and centered/front-facing focus checks; all 15 tests pass, production build passes, and targeted lint passes. Visual/GPU verification remains subject to the limitations above.
+
 Latest refinement: fixed screen-space curved leaders reveal without following the mesh; a second label pair appears during the necklace section. The ring remains through 96% of the story before fading. Camera starts farther away, dollies forward, sweeps around both sides during rotation, and closes on the capsule. The final macro intentionally crops the cord. All 14 tests pass, including capsule framing through 14 sampled positions on desktop and mobile; production build and targeted lint pass. Visual-capture limitations above still apply.
 
 The existing user development server remains available at http://localhost:3000. Blender and the original GLBs were not modified. Work is on `feat/nava-cinematic`. The user's existing dependency edits and reference/model assets were preserved. No deployment or external publication occurred.

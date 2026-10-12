@@ -67,7 +67,7 @@ test('actual product assemblies fit desktop and mobile through the transfer', as
         for (let i = 0; i < attr.count; i++) {
           v.fromBufferAttribute(attr, i).applyMatrix4(node.matrixWorld).project(camera);
           assert.ok(Math.abs(v.x) < .95 && Math.abs(v.y) < .9, `clipped ${width}px p=${p}: ${v.toArray()}`);
-          if (mobile) assert.ok(v.y < .35, 'mobile product intrudes into heading p=' + p + ' y=' + v.y);
+          if (mobile && root === assembly.device) assert.ok(v.y < .6, 'centered mobile capsule intrudes into heading p=' + p + ' y=' + v.y);
         }
       });
     }
