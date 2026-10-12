@@ -1,10 +1,53 @@
 ﻿"""Non-destructive NAVA refinement. Run with Blender --background --factory-startup --python.
 Original GLBs stay untouched. glTF Y-up is converted to Blender Z-up by the importer.
 """
-import bpy, math
+import bpy, math, re
+import xml.etree.ElementTree as ET
 from pathlib import Path
 from mathutils import Matrix
 ROOT = Path(__file__).resolve().parents[1]
+
+def logo_paths():
+    """Sample the supplied SVG's relative cubic outlines into closed mesh contours."""
+    tree = ET.parse(ROOT/'public'/'nabz-logo.svg')
+    contours=[]
+    for path in tree.getroot().findall('{http://www.w3.org/2000/svg}path'):
+        tokens=re.findall(r'[A-Za-z]|[-+]?(?:\d*\.\d+|\d+)(?:[eE][-+]?\d+)?',path.attrib['d'])
+        i=0; command=None; current=(0,0); points=[]
+        while i<len(tokens):
+            if tokens[i].isalpha(): command=tokens[i]; i+=1
+            if command in ('Z','z'): break
+            if command=='M':
+                current=(float(tokens[i]),float(tokens[i+1])); i+=2; points.append(current)
+            elif command=='c':
+                values=list(map(float,tokens[i:i+6])); i+=6
+                a=current; b=(a[0]+values[0],a[1]+values[1]); c=(a[0]+values[2],a[1]+values[3]); d=(a[0]+values[4],a[1]+values[5])
+                for step in range(1,17):
+                    t=step/16; u=1-t
+                    points.append(tuple(u**3*a[k]+3*u*u*t*b[k]+3*u*t*t*c[k]+t**3*d[k] for k in range(2)))
+                current=d
+            else: raise ValueError('Unsupported SVG command: '+str(command))
+        contours.append(points)
+    xs=[p[0] for points in contours for p in points]; ys=[p[1] for points in contours for p in points]
+    bounds=(min(xs),min(ys),max(xs),max(ys))
+    # Same supplied paths, tightly framed and light-colored for the website.
+    tree.getroot().set('viewBox',f'{bounds[0]-4} {bounds[1]-4} {bounds[2]-bounds[0]+8} {bounds[3]-bounds[1]+8}')
+    tree.getroot().set('fill','#e7f3fa')
+    ET.register_namespace('','http://www.w3.org/2000/svg')
+    tree.write(ROOT/'public'/'nabz-mark.svg',encoding='utf-8',xml_declaration=True)
+    return contours,bounds
+
+def add_logo(device, ink):
+    contours,b=logo_paths(); scale=.0058/(b[2]-b[0])
+    curve=bpy.data.curves.new('NABZ vector insignia','CURVE'); curve.dimensions='2D'; curve.fill_mode='BOTH'; curve.extrude=.000008
+    for contour in contours:
+        spline=curve.splines.new('POLY'); spline.points.add(len(contour)-1)
+        for point,(x,y) in zip(spline.points,contour): point.co=((x-(b[0]+b[2])/2)*scale, ((b[1]+b[3])/2-y)*scale, 0, 1)
+        spline.use_cyclic_u=True
+    obj=bpy.data.objects.new('NABZ insignia',curve); bpy.context.collection.objects.link(obj)
+    obj.parent=device; obj.location=(0,.014,.00855); curve.materials.append(ink)
+    bpy.ops.object.select_all(action='DESELECT'); obj.select_set(True); bpy.context.view_layer.objects.active=obj
+    bpy.ops.object.convert(target='MESH'); obj.select_set(False)
 
 def material(name, color, metal, rough):
     m = bpy.data.materials.new(name); m.use_nodes = True
@@ -54,6 +97,10 @@ for source, target in [('wristband.glb','wristband-refined.glb'),('nava-modular.
             o.select_set(False)
         for poly in o.data.polygons: poly.use_smooth=True
     device=bpy.data.objects['DEVICE_ROOT']
+    old_logo=bpy.data.objects.get('N insignia')
+    if old_logo: bpy.data.objects.remove(old_logo,do_unlink=True)
+    ink=material('NABZ silver insignia',(.65,.83,.89),.55,.3)
+    add_logo(device,ink)
     ring(device,'Microphone chrome bezel',(0,-.014,.00837),.00094,.00013,chrome)
     ring(device,'Microphone callout light',(0,-.014,.00844),.00076,.00008,light)
     # Recessed, dark acoustic perforations with actual mesh edges, not a painted dot.

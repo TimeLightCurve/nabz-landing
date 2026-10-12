@@ -17,6 +17,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  icons: { icon: "/nabz-mark.svg" },
   title: "NAVA — Your thoughts. Within reach.",
   description: "Meet NAVA, the wearable AI note taker. One device, two ways to wear. From your wrist to your necklace, keep the moment and carry the thought.",
 };

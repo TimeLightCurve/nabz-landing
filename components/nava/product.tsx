@@ -9,8 +9,8 @@ import { sampleFloat } from '@/lib/nava/motion';
 import { sampleHardwareHighlights } from '@/lib/nava/highlights';
 import type { HardwareAnchors } from './hardware-annotations';
 export default function Product({ progress, reducedMotion, mobile, onReady, anchors }: { progress: RefObject<number>; reducedMotion: boolean; mobile: boolean; onReady: () => void; anchors: RefObject<HardwareAnchors> }) {
-  const wrist = useGLTF('/wristband-refined.glb');
-  const modular = useGLTF('/nava-modular-refined.glb');
+  const wrist = useGLTF('/wristband-refined.glb?v=nabz1');
+  const modular = useGLTF('/nava-modular-refined.glb?v=nabz1');
   const assembly = useMemo(() => resolveAssembly(wrist.scene, modular.scene), [wrist.scene, modular.scene]);
   const stage = useRef<Group>(null);
   const magneticLight = useRef<PointLight>(null);

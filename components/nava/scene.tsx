@@ -22,7 +22,7 @@ export default function Scene({ progress, reducedMotion, onReady, attempt, ancho
   const [mobile, setMobile] = useState(false);
   const [cacheReady, setCacheReady] = useState(attempt === 0);
   useEffect(() => {
-    if (attempt > 0) { useGLTF.clear('/wristband-refined.glb'); useGLTF.clear('/nava-modular-refined.glb'); setCacheReady(true); }
+    if (attempt > 0) { useGLTF.clear('/wristband-refined.glb?v=nabz1'); useGLTF.clear('/nava-modular-refined.glb?v=nabz1'); setCacheReady(true); }
     const query = window.matchMedia('(max-width: 767px)');
     const update = () => setMobile(query.matches);
     update(); query.addEventListener('change', update);

@@ -1,5 +1,6 @@
 'use client';
 import dynamic from 'next/dynamic';
+import Image from 'next/image';
 import { useCallback, useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { CHAPTERS, STORY_END } from '@/lib/nava/timeline';
 import { jumpToChapter, useStoryProgress } from './use-story-progress';
@@ -53,12 +54,12 @@ export default function Experience({ children }: { children: ReactNode }) {
       <div className="ambient-backdrop" /><div className="grain" />
       <div className="scene-layer">
         <SceneBoundary onError={onError} onRetry={() => { setReady(false); setFailed(false); setAttempt(n => n + 1); }}>
-          {webgl ? <Scene key={attempt} progress={progress} reducedMotion={reduced} onReady={onReady} attempt={attempt} anchors={anchors} cameraRef={cameraRef} /> : <div className="webgl-fallback"><span>N</span><p>A little closer to every thought.</p></div>}
+          {webgl ? <Scene key={attempt} progress={progress} reducedMotion={reduced} onReady={onReady} attempt={attempt} anchors={anchors} cameraRef={cameraRef} /> : <div className="webgl-fallback"><Image src="/nabz-mark.svg" alt="NABZ" width={100} height={88} /><p>A little closer to every thought.</p></div>}
         </SceneBoundary>
       </div>
       {webgl && !failed && <HardwareAnnotations progress={progress} anchors={anchors} cameraRef={cameraRef} reducedMotion={reduced} />}
       <header className="site-header">
-        <a href="#within-reach" className="wordmark" aria-label="NAVA — back to the beginning" onClick={e => { e.preventDefault(); navigate(0); }}>nava<span className="brand-dot" /></a>
+        <a href="#within-reach" className="wordmark" aria-label="NAVA — back to the beginning" onClick={e => { e.preventDefault(); navigate(0); }}><Image src="/nabz-mark.svg" alt="NABZ" width={54} height={48} priority style={{ width: 54, height: 48, objectFit: 'contain' }} /></a>
         <span className="header-caption">A LITTLE CLOSER TO YOUR MIND</span>
         <button ref={menuButton} className="menu-toggle" aria-expanded={menu} aria-controls="chapter-menu" onClick={() => setMenu(!menu)}><span>{menu ? 'CLOSE' : 'MENU'}</span><span className={`menu-icon ${menu ? 'is-open' : ''}`}><i /><i /><i /><i /></span></button>
       </header>
