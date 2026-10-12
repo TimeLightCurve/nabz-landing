@@ -2,7 +2,7 @@
 import { useGLTF } from '@react-three/drei';
 import { useFrame } from '@react-three/fiber';
 import { useEffect, useMemo, useRef, type RefObject } from 'react';
-import { Euler, Group, Matrix4, Mesh, MeshStandardMaterial, Quaternion, Vector3 } from 'three';
+import { Euler, Group, Matrix4, Mesh, MeshStandardMaterial, PointLight, Quaternion, Vector3 } from 'three';
 import { resolveAssembly, solveDockPose } from '@/lib/nava/assembly';
 import { sampleStory, smooth, presentation } from '@/lib/nava/timeline';
 export default function Product({ progress, reducedMotion, mobile, onReady }: { progress: RefObject<number>; reducedMotion: boolean; mobile: boolean; onReady: () => void }) {
@@ -10,11 +10,15 @@ export default function Product({ progress, reducedMotion, mobile, onReady }: { 
   const modular = useGLTF('/nava-modular.glb');
   const assembly = useMemo(() => resolveAssembly(wrist.scene, modular.scene), [wrist.scene, modular.scene]);
   const stage = useRef<Group>(null);
+  const magneticLight = useRef<PointLight>(null);
   const current = useRef(progress.current);
   const math = useMemo(() => ({ matrix: new Matrix4(), q: new Quaternion(), e: new Euler(), pos: new Vector3(), marker: new Vector3(), scale: new Vector3(1, 1, 1) }), []);
   const mats = useMemo(() => {
     const collect = (root: Group) => { const result: MeshStandardMaterial[] = []; root.traverse(n => { if (n instanceof Mesh) result.push(n.material as MeshStandardMaterial); }); return result; };
-    return { wrist: collect(assembly.wrist), necklace: collect(assembly.necklace), device: collect(assembly.device) };
+    const wrist = collect(assembly.wrist); const necklace = collect(assembly.necklace);
+    // Keep the transparent shader variant stable while opacity animates.
+    [...wrist, ...necklace].forEach(material => { material.transparent = true; });
+    return { wrist, necklace, device: collect(assembly.device) };
   }, [assembly]);
   useEffect(() => { onReady(); }, [onReady]);
   useEffect(() => () => { Object.values(mats).flat().forEach(material => material.dispose()); }, [mats]);
@@ -40,9 +44,10 @@ export default function Product({ progress, reducedMotion, mobile, onReady }: { 
     math.q.setFromEuler(math.e.set(...pose.device.rotation));
     math.matrix.compose(math.pos, math.q, math.scale);
     solveDockPose(math.matrix, assembly.contactLocal).decompose(assembly.device.position, assembly.device.quaternion, math.pos);
+    if (magneticLight.current) magneticLight.current.intensity = pose.glow * 5;
     for (const [key, opacity] of [['wrist', pose.wristOpacity], ['necklace', pose.necklaceOpacity]] as const) {
-      for (const material of mats[key]) { material.transparent = opacity < 1; material.opacity = opacity; material.depthWrite = opacity > .98; }
+      for (const material of mats[key]) { material.opacity = opacity; material.depthWrite = opacity > .98; }
     }
   });
-  return <group ref={stage} dispose={null}><primitive object={assembly.wrist} /><primitive object={assembly.necklace} /><primitive object={assembly.device} /></group>;
+  return <group ref={stage} dispose={null}><primitive object={assembly.wrist} /><primitive object={assembly.necklace} /><primitive object={assembly.device} /><pointLight ref={magneticLight} position={[0, .85, 0]} intensity={0} distance={3} color="#72d2ff" /></group>;
 }

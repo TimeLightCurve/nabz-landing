@@ -22,16 +22,17 @@ export function sampleStory(value: number): StoryPose {
   const transfer = smooth(.38, .65, p);
   const dock = smooth(.65, .8, p);
   const finish = smooth(.78, 1, p);
-  const framing = smooth(.35, .95, p);
+  const framing = smooth(.3, .55, p);
+  const turning = smooth(.35, .95, p);
   const y = .165 + 1.65 * lift * (1 - dock);
   const x = Math.sin(transfer * Math.PI) * .65 * (1 - dock);
   return {
     device: { position: [x, y, 0], rotation: [Math.sin(transfer * Math.PI) * .25, 0, Math.sin(transfer * Math.PI) * -.45] },
     wristX: transfer === 0 ? 0 : -4.8 * transfer,
     necklaceX: 5.3 * (1 - transfer),
-    wristOpacity: 1 - smooth(.47, .65, p),
-    necklaceOpacity: smooth(.38, .55, p),
-    rotation: [lerp(1.08, 1.4, framing), lerp(.4, -.18, framing), lerp(-.56, -.12, framing)],
+    wristOpacity: 1 - smooth(.38, .52, p),
+    necklaceOpacity: smooth(.43, .6, p),
+    rotation: [lerp(1.08, 1.4, turning), lerp(.4, -.18, turning), lerp(-.56, -.12, turning)],
     position: [0, lerp(.78, -1.85, framing), 0],
     scale: lerp(1.03, .57, framing),
     glow: Math.sin(dock * Math.PI) * .8 + finish * .12,
@@ -42,7 +43,7 @@ export function presentation(p: number, mobile: boolean) {
   const pose = sampleStory(p);
   const end = smooth(.4, 1, p);
   return {
-    position: [mobile ? .05 : .65, pose.position[1] + (mobile ? lerp(-.85, .14, end) : 0), 0] as Vec3,
+    position: [mobile ? .05 : .65, pose.position[1] + (mobile ? lerp(-.85, -.08, end) : 0), 0] as Vec3,
     scale: pose.scale * (mobile ? lerp(.65, .85, end) : 1),
     rotation: pose.rotation,
   };

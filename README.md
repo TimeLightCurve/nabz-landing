@@ -1,36 +1,32 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+﻿# NAVA landing page
 
-## Getting Started
+A cinematic, scroll-driven product story built with Next.js and React Three Fiber. NAVA lifts from its wrist cradle, moves toward the necklace, and attaches to its magnetic adapter. Scroll upward to reverse the sequence, or use Explore to jump between chapters.
 
-First, run the development server:
+## Local preview
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+Run `npm run dev` and open http://localhost:3000. The existing local development server can also serve edits automatically.
+
+## Checks
+
+```sh
+node --experimental-strip-types --test tests/nava-assembly.test.ts tests/nava-timeline.test.ts
+npx tsc --noEmit
+npm run build
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Node 22.12 or newer supports the test command. The experimental type-stripping warnings on Node 22 are informational.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Editing
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- `app/page.tsx`: chapter copy.
+- `app/globals.css`: typography, layout, navigation, and responsive styles.
+- `lib/nava/timeline.ts`: scroll phases and responsive product framing.
+- `lib/nava/assembly.ts`: model normalization and material appearance.
+- `components/nava/scene.tsx`: camera and lighting.
+- `components/nava/atmosphere.tsx`: procedural rings, haze, and particles.
 
-## Learn More
+Required local assets are `public/wristband.glb`, `public/nava-modular.glb`, and `public/noise-r.png`. The saved `aether-files` directory is reference-only and excluded from TypeScript compilation. The root file named `scene-258.glb` contains JavaScript and is not loaded.
 
-To learn more about Next.js, take a look at the following resources:
+The page includes reduced-motion presentation, loading/error states, model retry, and a WebGL fallback. No backend, purchase flow, or AI service is connected.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+See `docs/superpowers/verification/nava-landing.md` for verification evidence and remaining visual checks.

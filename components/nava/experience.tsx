@@ -26,8 +26,8 @@ export default function Experience({ children }: { children: ReactNode }) {
     const context = canvas.getContext('webgl2');
     setWebgl(!!context);
     context?.getExtension('WEBGL_lose_context')?.loseContext();
-    const hash = CHAPTERS.findIndex(item => `#${item.id}` === window.location.hash);
-    if (hash >= 0) requestAnimationFrame(() => jumpToChapter(container.current, hash, true));
+    // Native anchor navigation and browser history restore the scroll position.
+    // Replaying the hash here would overwrite a later manually scrolled position.
     return () => query.removeEventListener('change', update);
   }, []);
   useEffect(() => {

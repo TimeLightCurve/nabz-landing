@@ -8,6 +8,7 @@ function Visibility() {
   const { setFrameloop, invalidate } = useThree();
   useEffect(() => {
     const update = () => { setFrameloop(document.hidden ? 'never' : 'always'); if (!document.hidden) invalidate(); };
+    update();
     document.addEventListener('visibilitychange', update);
     return () => document.removeEventListener('visibilitychange', update);
   }, [setFrameloop, invalidate]);
