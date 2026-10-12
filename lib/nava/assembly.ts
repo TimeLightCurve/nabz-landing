@@ -1,4 +1,5 @@
 import { Group, Matrix4, Mesh, MeshStandardMaterial, Object3D } from 'three';
+import { addSurfaceDetail } from './surface-material.ts';
 
 export const MODEL_SCALE = 55;
 export function solveDockPose(dockWorld: Matrix4, contactLocal: Matrix4): Matrix4 {
@@ -20,12 +21,24 @@ function prepare(source: Object3D): Group {
     const original = node.material as MeshStandardMaterial;
     const material = original.clone();
     const name = original.name.toLowerCase();
+    const part = node.name.replaceAll('_', ' ').toLowerCase();
     if (name.includes('graphite')) {
-      material.color.set('#344653'); material.metalness = .82; material.roughness = .29;
+      material.color.set('#233c50'); material.metalness = .88; material.roughness = .32;
+      addSurfaceDetail(material, false);
     } else if (name.includes('textile')) {
       material.color.set('#18232c'); material.metalness = .12; material.roughness = .79;
+      addSurfaceDetail(material, true);
     } else if (name.includes('steel') || name.includes('edge')) {
       material.color.set('#7796a5'); material.metalness = .95; material.roughness = .22;
+    }
+    if (part.includes('fine perimeter seam')) {
+      material.color.set('#123342'); material.emissive.set('#4ac9ee'); material.emissiveIntensity = .7;
+      material.metalness = .5; material.roughness = .24;
+    } else if (part.includes('insignia')) {
+      material.color.set('#a5dce7'); material.emissive.set('#57c8e4'); material.emissiveIntensity = .38;
+      material.roughness = .2;
+    } else if (part.includes('side control')) {
+      material.color.set('#426479'); material.metalness = .94; material.roughness = .23;
     }
     material.envMapIntensity = 1.65;
     node.material = material;

@@ -58,7 +58,6 @@ export default function Experience({ children }: { children: ReactNode }) {
       </header>
       {menu && <nav id="chapter-menu" className="chapter-menu" aria-label="Explore NAVA">{CHAPTERS.map((item, i) => <a ref={i === 0 ? firstLink : undefined} key={item.id} href={`#${item.id}`} aria-current={i === chapter ? 'step' : undefined} onClick={e => { e.preventDefault(); navigate(i); }}><span>0{i + 1}</span>{item.label}<span>↗</span></a>)}</nav>}
       <div className="copy-stack">{children}</div>
-      <div className="model-callout" key={chapter}><i /><span>{['NAVA / WRIST EDITION', 'PRECISION MAGNETIC CONNECTION', 'ONE DEVICE. TWO WAYS TO WEAR.', 'A NATURAL CONNECTION', 'NAVA / NECKLACE EDITION'][chapter]}</span></div>
       <aside className="side-index" aria-label="Chapter navigation">{CHAPTERS.map((item, i) => <button key={item.id} aria-label={item.label} aria-current={i === chapter ? 'step' : undefined} onClick={() => navigate(i)}><span>0{i + 1}</span><i /></button>)}</aside>
       <footer className="experience-footer">
         <div className="chapter-counter"><span>0{chapter + 1}</span><i /><span>05</span></div>

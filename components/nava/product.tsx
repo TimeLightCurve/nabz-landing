@@ -4,9 +4,10 @@ import { useFrame } from '@react-three/fiber';
 import { useEffect, useMemo, useRef, type RefObject } from 'react';
 import { Euler, Group, Matrix4, Mesh, MeshStandardMaterial, PointLight, Quaternion, Vector3 } from 'three';
 import { resolveAssembly, solveDockPose } from '@/lib/nava/assembly';
-import { sampleStory, smooth, presentation } from '@/lib/nava/timeline';
+import { sampleStory, smooth, presentation, storyProgress } from '@/lib/nava/timeline';
 import { sampleFloat } from '@/lib/nava/motion';
-export default function Product({ progress, reducedMotion, mobile, onReady }: { progress: RefObject<number>; reducedMotion: boolean; mobile: boolean; onReady: () => void }) {
+import type { HardwareAnchors } from './hardware-annotations';
+export default function Product({ progress, reducedMotion, mobile, onReady, anchors }: { progress: RefObject<number>; reducedMotion: boolean; mobile: boolean; onReady: () => void; anchors: RefObject<HardwareAnchors> }) {
   const wrist = useGLTF('/wristband.glb');
   const modular = useGLTF('/nava-modular.glb');
   const assembly = useMemo(() => resolveAssembly(wrist.scene, modular.scene), [wrist.scene, modular.scene]);
@@ -25,8 +26,7 @@ export default function Product({ progress, reducedMotion, mobile, onReady }: { 
   useFrame(({ clock }) => {
     const raw = progress.current;
     // Lenis already smooths native scroll. Keep product and chapter timing in sync.
-    let p = raw;
-    if (reducedMotion) p = raw < .19 ? 0 : raw < .39 ? .36 : raw < .65 ? .53 : raw < .83 ? .8 : 1;
+    const p = storyProgress(raw, reducedMotion);
     const pose = sampleStory(p);
     const framing = presentation(p, mobile);
     const root = stage.current;
@@ -45,10 +45,18 @@ export default function Product({ progress, reducedMotion, mobile, onReady }: { 
     math.q.setFromEuler(math.e.set(...pose.device.rotation));
     math.matrix.compose(math.pos, math.q, math.scale);
     solveDockPose(math.matrix, assembly.contactLocal).decompose(assembly.device.position, assembly.device.quaternion, math.pos);
-    if (magneticLight.current) magneticLight.current.intensity = pose.glow * 5;
+    if (magneticLight.current) {
+      magneticLight.current.position.set(pose.device.position[0], .85, 0);
+      magneticLight.current.intensity = pose.glow * 5;
+    }
     for (const [key, opacity] of [['wrist', pose.wristOpacity], ['necklace', pose.necklaceOpacity]] as const) {
       for (const material of mats[key]) { material.opacity = opacity; material.depthWrite = opacity > .98; }
     }
-  });
+    root.updateMatrixWorld(true);
+    anchors.current.microphone.set(0, .0083, .014).applyMatrix4(assembly.device.matrixWorld);
+    anchors.current.magnet.set(0, -.0001, -.013).applyMatrix4(assembly.device.matrixWorld);
+    anchors.current.center.set(0, .003, 0).applyMatrix4(assembly.device.matrixWorld);
+    anchors.current.ready = true;
+  }, -.5);
   return <group ref={stage} dispose={null}><primitive object={assembly.wrist} /><primitive object={assembly.necklace} /><primitive object={assembly.device} /><pointLight ref={magneticLight} position={[0, .85, 0]} intensity={0} distance={3} color="#72d2ff" /></group>;
 }

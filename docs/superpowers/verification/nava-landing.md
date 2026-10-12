@@ -2,12 +2,13 @@
 
 ## Passed
 
-- Eight Node tests: dock contact transforms, missing-node diagnostics, actual supplied GLB normalization, desktop/mobile vertex projection across five stages, exact timeline endpoints, 1,001 finite deterministic pose samples, phase continuity, and release order.
+- Thirteen Node tests: dock contact transforms, missing-node diagnostics, actual supplied GLB normalization, desktop/mobile vertex projection across eleven stages, exact timeline endpoints, finite deterministic pose samples, phase continuity, release order, bounded floating, continuous scroll response, reduced-motion poses, and progressive hardware ring/label timing.
 - TypeScript: `npx tsc --noEmit` exits successfully.
 - Production build: `npm run build` completes and statically renders the home route.
 - Local HTTP: `/`, `/wristband.glb`, `/nava-modular.glb`, and `/noise-r.png` return HTTP 200. Models have valid glTF binary headers.
 - Native Chrome accessibility observation confirms the NAVA page, loaded scene container, hero copy, navigation, and replay/scroll control. Loading status has cleared.
 - Independent code review completed. Fixed all three findings: hash overriding restored scroll, necklace clipping during transition, and short-viewport footer clipping. Added actual-model geometry coverage.
+- Hardware-scene review completed: magnetic light follows the device across the 14-unit transfer; mobile heading and labels have separate vertical space. Reviewed anchor projection, full rotation, docking endpoints, and procedural material shader construction. Final production build and all 13 tests pass after these changes.
 
 ## Verification limitations
 

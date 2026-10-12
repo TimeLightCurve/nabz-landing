@@ -671,3 +671,51 @@ button:focus-visible,a:focus-visible {
     display:none
   }
 }
+/* Hardware showcase: readable labels and immediate, scroll-linked annotation. */
+.nava-story { height: 820svh; }
+.chapter { transition: opacity .18s, visibility .18s; }
+.chapter-heading { transform: translateY(6px); transition: transform .22s ease-out; }
+.chapter-tag { font-size: 10px; letter-spacing: 1.2px; }
+.chapter-note { font-size: 14px; color: #b0c3d0; line-height: 1.65; }
+.chapter-description { width: 260px; }
+.chapter-description p { font-size: 18px; line-height: 1.55; }
+.chapter-description .eyebrow { font-size: 10px; color: #a8c3d4; }
+.chapter-2 .chapter-description { left: 7.2%; right: auto; bottom: 23%; }
+.hardware-annotations { overflow: visible; pointer-events: none; }
+.hardware-orbit { stroke: #85c9ff; stroke-width: 1.2; filter: drop-shadow(0 0 5px #398bd3); }
+.orbit-tip { fill: #d3f3ff; filter: drop-shadow(0 0 7px #66c5ff); }
+.hardware-leaders path { stroke: #c5d8e7; stroke-opacity: .68; stroke-width: 1; }
+.hardware-leaders circle { fill: #dbf4ff; }
+.hardware-label { fill: #eef7ff; font: 14px var(--font-geist-mono), monospace; letter-spacing: .5px; }
+.hardware-caption { fill: #b4cbd9; font: 14px var(--font-geist-sans), sans-serif; }
+@media (min-width: 1600px) {
+  .hardware-label, .hardware-caption { font-size: 16px; }
+}
+@media (max-width: 1100px) and (min-width: 768px) {
+  .chapter-description { width: 205px; }
+  .chapter-description p { font-size: 16px; }
+  .hardware-label, .hardware-caption { font-size: 11px; }
+}
+@media (max-width: 767px) {
+  .nava-story { height: 780svh; }
+  .chapter-tag { font-size: 8px; }
+  .chapter-note { font-size: 11px; }
+  .chapter-description { width: 240px; bottom: 15%; }
+  .chapter-description p { font-size: 15px; }
+  .chapter-description .eyebrow { font-size: 8px; }
+  .chapter-2 .chapter-description { left: 27px; bottom: 13%; }
+  .chapter-2 .chapter-heading { top: 13%; }
+  .chapter-2 .chapter-note { display: none; }
+  .chapter-2 .chapter-description p { display: none; }
+  .chapter-2 .chapter-description .eyebrow { display: none; }
+  .hardware-label { font-size: 12px; letter-spacing: .2px; }
+  .hardware-caption { font-size: 12px; }
+}
+@media (max-height: 550px) {
+  .chapter-description p { font-size: 13px; }
+  .chapter-description .eyebrow { font-size: 8px; }
+  .chapter-2 .chapter-description { bottom: 20%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .chapter, .chapter-heading { transition: none; }
+}

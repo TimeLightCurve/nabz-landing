@@ -15,7 +15,7 @@ export function useStoryProgress(container: RefObject<HTMLElement | null>) {
       const p = Math.max(0, Math.min(1, -el.getBoundingClientRect().top / Math.max(1, range)));
       progress.current = p;
       el.style.setProperty('--progress', `${p}`);
-      setChapter(p < .19 ? 0 : p < .39 ? 1 : p < .65 ? 2 : p < .83 ? 3 : 4);
+      setChapter(p < .17 ? 0 : p < .33 ? 1 : p < .78 ? 2 : p < .94 ? 3 : 4);
       frame = 0;
     };
     const schedule = () => { if (!frame) frame = requestAnimationFrame(update); };

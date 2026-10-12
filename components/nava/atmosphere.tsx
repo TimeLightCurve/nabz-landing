@@ -1,7 +1,7 @@
 'use client';
 import { useFrame } from '@react-three/fiber';
 import { useMemo, useRef, type RefObject } from 'react';
-import { AdditiveBlending, Points, ShaderMaterial } from 'three';
+import { AdditiveBlending, Group, Points, ShaderMaterial } from 'three';
 const vertex = `varying vec2 vUv; void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`;
 const fragment = `
 varying vec2 vUv;
@@ -23,6 +23,7 @@ void main(){
 }`;
 export default function Atmosphere({ progress, reducedMotion, mobile }: { progress: RefObject<number>; reducedMotion: boolean; mobile: boolean }) {
   const shader = useRef<ShaderMaterial>(null);
+  const environment = useRef<Group>(null);
   const particles = useRef<Points>(null);
   const uniforms = useMemo(() => ({ uTime: { value: 0 }, uProgress: { value: 0 } }), []);
   const positions = useMemo(() => {
@@ -31,12 +32,13 @@ export default function Atmosphere({ progress, reducedMotion, mobile }: { progre
     for (let i = 0; i < count; i++) { data[i * 3] = (random() - .5) * 20; data[i * 3 + 1] = (random() - .5) * 14; data[i * 3 + 2] = -2 - random() * 7; }
     return data;
   }, [mobile]);
-  useFrame(({ clock }) => {
+  useFrame(({ clock, camera }) => {
+    if (environment.current) { environment.current.position.copy(camera.position); environment.current.position.z -= 10; }
     if (shader.current) { shader.current.uniforms.uTime.value = reducedMotion ? 0 : clock.elapsedTime; shader.current.uniforms.uProgress.value = progress.current; }
     if (particles.current && !reducedMotion) particles.current.rotation.z = Math.sin(clock.elapsedTime * .025) * .08;
   });
-  return <>
+  return <group ref={environment}>
     <mesh position={[.65, 0, -6]}><planeGeometry args={[25, 25]} /><shaderMaterial ref={shader} uniforms={uniforms} vertexShader={vertex} fragmentShader={fragment} blending={AdditiveBlending} depthWrite={false} transparent /></mesh>
     <points ref={particles}><bufferGeometry><bufferAttribute attach="attributes-position" args={[positions, 3]} /></bufferGeometry><pointsMaterial size={.014} color="#8ac5ee" transparent opacity={.48} depthWrite={false} sizeAttenuation blending={AdditiveBlending} /></points>
-  </>;
+  </group>;
 }

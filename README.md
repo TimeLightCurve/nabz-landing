@@ -27,6 +27,10 @@ Node 22.12 or newer supports the test command. The experimental type-stripping w
 - `lib/nava/motion.ts`: scroll camera path and floating position/rotation amplitudes.
 - `components/nava/use-story-progress.ts`: Lenis smoothing and chapter navigation.
 - `components/nava/atmosphere.tsx`: procedural rings, haze, and particles.
+- `components/nava/hardware-annotations.tsx`: scroll-drawn orbit and curved hardware leaders, projected from the real model.
+- `lib/nava/surface-material.ts`: UV-independent anodized microtexture and woven strap shading.
+
+The hardware chapter holds two model-grounded callouts (microphone and magnetic contacts) through a full device rotation. The wrist and necklace docks are 14 scene units apart, and the camera follows the device across that gap. `TRANSFER_DISTANCE`, phase timings, and annotation reveal timing live in `lib/nava/timeline.ts`.
 
 Required local assets are `public/wristband.glb`, `public/nava-modular.glb`, and `public/noise-r.png`. The saved `aether-files` directory is reference-only and excluded from TypeScript compilation. The root file named `scene-258.glb` contains JavaScript and is not loaded.
 

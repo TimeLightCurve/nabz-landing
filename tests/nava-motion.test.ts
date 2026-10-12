@@ -29,9 +29,13 @@ test('scroll camera is deterministic, clamps progress and respects reduced motio
   assert.deepEqual(sampleScrollCamera(-1, false, false), sampleScrollCamera(0, false, false));
   assert.deepEqual(sampleScrollCamera(2, false, false), sampleScrollCamera(1, false, false));
   for (const p of [0, .2, .5, .8, 1]) {
-    assert.deepEqual(sampleScrollCamera(p, true, false), { position: [0, 0, 10], target: [0, 0, 0] });
+    const reduced = sampleScrollCamera(p, true, false);
+    assert.ok(Math.abs(reduced.position[0] - reduced.target[0]) < 1e-9);
+    assert.ok(Math.abs(reduced.position[1] - reduced.target[1]) < 1e-9);
+    assert.ok(Math.abs(reduced.position[2] - reduced.target[2] - 10) < 1e-9);
     const original = sampleScrollCamera(p, false, true);
     sampleScrollCamera(1 - p, false, true);
     assert.deepEqual(sampleScrollCamera(p, false, true), original);
   }
+  assert.deepEqual(sampleScrollCamera(.4, true, false), sampleScrollCamera(.7, true, false), 'reduced motion stays at a fixed chapter view');
 });

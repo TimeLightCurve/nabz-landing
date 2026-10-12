@@ -40,7 +40,7 @@ test('actual product assemblies fit desktop and mobile through the transfer', as
     const mobile = width < 768;
     const camera = new PerspectiveCamera(mobile ? 48 : 36, width / height, .1, 60);
     camera.position.z = 10; camera.updateMatrixWorld();
-    for (const p of [0, .27, .51, .73, 1]) {
+    for (const p of [0, .23, .35, .45, .55, .65, .73, .82, .86, .92, 1]) {
       const cameraPose = sampleScrollCamera(p, false, mobile);
       camera.position.set(...cameraPose.position); camera.lookAt(...cameraPose.target); camera.updateMatrixWorld();
       const pose = sampleStory(p); const framing = presentation(p, mobile);

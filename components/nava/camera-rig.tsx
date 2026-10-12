@@ -43,6 +43,7 @@ export default function CameraRig({ progress, reducedMotion, mobile }: { progres
     pointerOffset.current.y = reducedMotion ? 0 : MathUtils.damp(pointerOffset.current.y, targetY, 3.5, Math.min(delta, .1));
     camera.position.set(scroll.position[0] + pointerOffset.current.x, scroll.position[1] + pointerOffset.current.y, scroll.position[2]);
     camera.lookAt(...scroll.target);
+    camera.updateMatrixWorld();
   }, -1);
   return null;
 }

@@ -1,10 +1,12 @@
 'use client';
 import { Canvas, useThree } from '@react-three/fiber';
 import { Environment, Lightformer, useGLTF } from '@react-three/drei';
-import { Suspense, useEffect, useState, type RefObject } from 'react';
+import { Suspense, useEffect, useRef, useState, type RefObject } from 'react';
+import { Vector3 } from 'three';
 import Product from './product';
 import Atmosphere from './atmosphere';
 import CameraRig from './camera-rig';
+import HardwareAnnotations from './hardware-annotations';
 function Visibility() {
   const { setFrameloop, invalidate } = useThree();
   useEffect(() => {
@@ -17,6 +19,7 @@ function Visibility() {
 }
 export default function Scene({ progress, reducedMotion, onReady, attempt }: { progress: RefObject<number>; reducedMotion: boolean; onReady: () => void; attempt: number }) {
   const [mobile, setMobile] = useState(false);
+  const anchors = useRef({ microphone: new Vector3(), magnet: new Vector3(), center: new Vector3(), ready: false });
   const [cacheReady, setCacheReady] = useState(attempt === 0);
   useEffect(() => {
     if (attempt > 0) { useGLTF.clear('/wristband.glb'); useGLTF.clear('/nava-modular.glb'); setCacheReady(true); }
@@ -40,6 +43,7 @@ export default function Scene({ progress, reducedMotion, onReady, attempt }: { p
       <Lightformer position={[0, -4, 2]} scale={[4, 1, 1]} intensity={2} color="#85d9ec" target={[0, 0, 0]} />
     </Environment>
     <Atmosphere progress={progress} reducedMotion={reducedMotion} mobile={mobile} />
-    <Suspense fallback={null}><Product progress={progress} reducedMotion={reducedMotion} mobile={mobile} onReady={onReady} /></Suspense>
+    <Suspense fallback={null}><Product progress={progress} reducedMotion={reducedMotion} mobile={mobile} onReady={onReady} anchors={anchors} /></Suspense>
+    <HardwareAnnotations progress={progress} anchors={anchors} reducedMotion={reducedMotion} mobile={mobile} />
   </Canvas>;
 }
