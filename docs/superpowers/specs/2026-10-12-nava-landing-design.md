@@ -74,3 +74,4 @@ Respect reduced-motion preferences by disabling continuous idle/particle motion 
 7. Type checking and a production build succeed. Inspect runtime errors and asset requests during browser QA when browser access is available. If unavailable, state that visual/runtime verification remains incomplete rather than claiming it passed.
 
 The primary acceptance standard is a convincing NAVA adaptation of the supplied visual reference, with a physically readable magnetic transfer. Exact Aether motion cannot be reused unchanged because the geometry and attachment sequence differ.
+![alt text](image.png)

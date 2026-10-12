@@ -37,7 +37,7 @@ const panels = [
 export default function ProductDetails({ chapter }: { chapter: number }) {
   if (chapter < 5) return null;
   if (chapter === 8) return <section className="product-details product-availability" data-lenis-prevent aria-label="Explore NAVA">
-    <div className="details-intro"><p className="details-eyebrow">09 / A LITTLE CLOSER</p><h2>Your next<br />thought starts here.</h2><p>Meet the app today.<br />Follow the wearable as it takes shape.</p></div>
+    <div className="details-intro"><h2>Your next<br />thought starts here.</h2><p>Meet the app today.<br />Follow the wearable as it takes shape.</p></div>
     <div className="availability-panel" style={{ backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}>
       <p className="details-eyebrow">NAVA / BY NABZ</p><h3>Make room<br />for the moment.</h3>
       <p>The NAVA app is in pilot. The wearable is a concept in development and is not yet available to buy.</p>
@@ -48,7 +48,7 @@ export default function ProductDetails({ chapter }: { chapter: number }) {
   const panel = panels[chapter - 5];
   if (!panel) return null;
   return <section className="product-details" data-lenis-prevent aria-label={panel.title} key={chapter}>
-    <div className="details-intro"><p className="details-eyebrow">{panel.eyebrow}</p><h2>{panel.heading.split('\n').map((line, i) => <span key={line}>{i > 0 && <br />}{line}</span>)}</h2><p>{panel.description}</p><span className="details-step">0{chapter + 1}<i />09</span></div>
+    <div className="details-intro"><h2>{panel.heading.split('\n').map((line, i) => <span key={line}>{i > 0 && <br />}{line}</span>)}</h2><p>{panel.description}</p></div>
     <div className="details-glass" style={{ backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)' }}>
       <div className="details-panel-heading"><h3>{panel.title}</h3><span className="details-eyebrow">{panel.status}</span></div>
       <dl className="details-grid">{panel.cards.map(card => <div className="details-cell" key={card.label}><dt>{card.label}</dt><dd><strong>{card.value}</strong><p>{card.detail}</p></dd></div>)}</dl>

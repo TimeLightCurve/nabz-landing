@@ -9,7 +9,7 @@ const chapters = [
 ];
 export default function Home() {
   return <Experience>{chapters.map((chapter, i) => <section className={`chapter chapter-${i}`} key={chapter.tag} aria-label={chapter.tag}>
-    <div className="chapter-heading"><p className="eyebrow chapter-tag">{chapter.tag}</p>{i === 0 ? <h1>{chapter.title}</h1> : <h2>{chapter.title}</h2>}<p className="chapter-note">{chapter.note}</p></div>
-    <div className="chapter-description"><span className="small-cross">+</span><p>{chapter.description}</p><span className="eyebrow">{chapter.detail}</span></div>
+    <div className="chapter-heading">{i === 0 ? <h1>{chapter.title}</h1> : <h2>{chapter.title}</h2>}</div>
+    <div className="chapter-description"><p>{chapter.description}</p></div>
   </section>)}</Experience>;
 }

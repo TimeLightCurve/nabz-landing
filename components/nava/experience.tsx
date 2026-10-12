@@ -1,6 +1,6 @@
 'use client';
 import dynamic from 'next/dynamic';
-import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { CHAPTERS, STORY_END } from '@/lib/nava/timeline';
 import { jumpToChapter, useStoryProgress } from './use-story-progress';
 import SceneBoundary from './scene-boundary';
@@ -47,7 +47,7 @@ export default function Experience({ children }: { children: ReactNode }) {
   function navigate(index: number) {
     jumpToChapter(container.current, index, reduced, lenis.current); setMenu(false); menuButton.current?.focus({ preventScroll: true });
   }
-  return <main ref={container} className="nava-story" data-chapter={chapter} data-ready={ready}>
+  return <main ref={container} className="nava-story" data-chapter={chapter} data-ready={ready} data-menu={menu}>
     <div className="chapter-anchors" aria-hidden="true">{CHAPTERS.map(item => <span id={item.id} key={item.id} style={{ top: `${item.progress / STORY_END * 100}%` }} />)}</div>
     <div className="experience-stage">
       <div className="ambient-backdrop" /><div className="grain" />
@@ -60,9 +60,13 @@ export default function Experience({ children }: { children: ReactNode }) {
       <header className="site-header">
         <a href="#within-reach" className="wordmark" aria-label="NAVA — back to the beginning" onClick={e => { e.preventDefault(); navigate(0); }}>nava<span className="brand-dot" /></a>
         <span className="header-caption">A LITTLE CLOSER TO YOUR MIND</span>
-        <button ref={menuButton} className="menu-toggle" aria-expanded={menu} aria-controls="chapter-menu" onClick={() => setMenu(!menu)}><span>{menu ? 'CLOSE' : 'EXPLORE'}</span><span className={`menu-icon ${menu ? 'is-open' : ''}`}><i /><i /><i /><i /></span></button>
+        <button ref={menuButton} className="menu-toggle" aria-expanded={menu} aria-controls="chapter-menu" onClick={() => setMenu(!menu)}><span>{menu ? 'CLOSE' : 'MENU'}</span><span className={`menu-icon ${menu ? 'is-open' : ''}`}><i /><i /><i /><i /></span></button>
       </header>
-      {menu && <nav id="chapter-menu" className="chapter-menu" data-lenis-prevent aria-label="Explore NAVA">{CHAPTERS.map((item, i) => <a ref={i === 0 ? firstLink : undefined} key={item.id} href={`#${item.id}`} aria-current={i === chapter ? 'step' : undefined} onClick={e => { e.preventDefault(); navigate(i); }}><span>0{i + 1}</span>{item.label}<span>↗</span></a>)}</nav>}
+      <button className="menu-dismiss" aria-label="Close navigation" tabIndex={-1} aria-hidden={!menu} onClick={() => { setMenu(false); menuButton.current?.focus(); }} />
+      <nav id="chapter-menu" className="chapter-menu" data-open={menu} inert={!menu} aria-hidden={!menu} data-lenis-prevent aria-label="Explore NAVA" style={{ backdropFilter: 'blur(22px)' }}>
+        <div className="menu-links">{CHAPTERS.map((item, i) => <a ref={i === 0 ? firstLink : undefined} key={item.id} href={`#${item.id}`} style={{ '--item-index': i, '--exit-index': CHAPTERS.length - 1 - i } as CSSProperties} aria-current={i === chapter ? 'step' : undefined} onClick={e => { e.preventDefault(); navigate(i); }}><i aria-hidden="true" />{['Home', 'Connection', 'Craft', 'Necklace', 'Everyday', 'Memory', 'Voice', 'Privacy', 'Explore NAVA'][i]}</a>)}</div>
+        <a className="menu-app-link" href="https://nabzlab.com/app/nava">Open NAVA <span aria-hidden="true">&#8599;</span></a>
+      </nav>
       <div className="copy-stack">{children}</div>
       <ProductDetails chapter={chapter} />
       <aside className="side-index" aria-label="Chapter navigation">{CHAPTERS.map((item, i) => <button key={item.id} aria-label={item.label} aria-current={i === chapter ? 'step' : undefined} onClick={() => navigate(i)}><span>0{i + 1}</span><i /></button>)}</aside>
