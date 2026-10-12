@@ -2,7 +2,7 @@
 
 import { Html } from '@react-three/drei';
 import { useFrame, useThree } from '@react-three/fiber';
-import { useMemo, useRef, type RefObject } from 'react';
+import { useRef, type RefObject } from 'react';
 import { Vector3 } from 'three';
 import { sampleAnnotations, storyProgress } from '@/lib/nava/timeline';
 
@@ -20,7 +20,7 @@ export default function HardwareAnnotations({ progress, anchors, reducedMotion, 
   const bottomPath = useRef<SVGPathElement>(null);
   const topDot = useRef<SVGCircleElement>(null);
   const bottomDot = useRef<SVGCircleElement>(null);
-  const projected = useMemo(() => [new Vector3(), new Vector3(), new Vector3()], []);
+  const projected = useRef([new Vector3(), new Vector3(), new Vector3()]);
   const w = size.width; const h = size.height;
   const endX = w * (mobile ? .9 : w < 1100 ? .72 : .785);
   const topY = h * (mobile ? .37 : .245);
@@ -36,11 +36,11 @@ export default function HardwareAnnotations({ progress, anchors, reducedMotion, 
     root.current.style.visibility = state.opacity < .01 ? 'hidden' : 'visible';
     root.current.setAttribute('aria-hidden', state.opacity < .01 ? 'true' : 'false');
     if (state.opacity < .01) return;
-    const [mic, magnet, center] = projected;
+    const [mic, magnet, center] = projected.current;
     mic.copy(anchors.current.microphone).project(camera);
     magnet.copy(anchors.current.magnet).project(camera);
     center.copy(anchors.current.center).project(camera);
-    for (const point of projected) { point.x = (point.x + 1) * w / 2; point.y = (1 - point.y) * h / 2; }
+    for (const point of projected.current) { point.x = (point.x + 1) * w / 2; point.y = (1 - point.y) * h / 2; }
     const radius = Math.min(w * (mobile ? .39 : .23), h * .3);
     const cx = center.x; const cy = center.y;
     const draw = reducedMotion ? 1 : state.draw;

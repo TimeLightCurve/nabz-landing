@@ -12,6 +12,8 @@
 
 ## Verification limitations
 
+Targeted ESLint passes for the new hardware overlay. The broader scene lint still reports existing React hook rules for imperative Three.js material/object updates and synchronous initialization effects in Product, Experience, and Scene. Production compilation and motion tests pass; lint is not clean.
+
 Desktop screenshot capture timed out through the available Windows tool, and native input reported unavailable coordinate geometry. The browser connector exposed no available browser. Consequently screenshot comparison to Aether, live pointer/keyboard interaction, reduced-motion emulation, forced network-failure retry, and actual GPU animation smoothness have not been visually verified. Projection checks validate geometry framing at 1440×900 and 390×844; they do not substitute for checking the rendered lighting, materials, and typography by eye.
 
 ## Implementation notes

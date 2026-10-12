@@ -56,6 +56,8 @@ export default function Product({ progress, reducedMotion, mobile, onReady, anch
     anchors.current.microphone.set(0, .0083, .014).applyMatrix4(assembly.device.matrixWorld);
     anchors.current.magnet.set(0, -.0001, -.013).applyMatrix4(assembly.device.matrixWorld);
     anchors.current.center.set(0, .003, 0).applyMatrix4(assembly.device.matrixWorld);
+    // Shared imperative frame data, consumed by the SVG overlay after this frame callback.
+    // eslint-disable-next-line react-hooks/immutability
     anchors.current.ready = true;
   }, -.5);
   return <group ref={stage} dispose={null}><primitive object={assembly.wrist} /><primitive object={assembly.necklace} /><primitive object={assembly.device} /><pointLight ref={magneticLight} position={[0, .85, 0]} intensity={0} distance={3} color="#72d2ff" /></group>;
