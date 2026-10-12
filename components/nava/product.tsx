@@ -6,10 +6,11 @@ import { Euler, Group, Matrix4, Mesh, MeshStandardMaterial, PointLight, Quaterni
 import { resolveAssembly, solveDockPose } from '@/lib/nava/assembly';
 import { sampleStory, smooth, presentation, storyProgress } from '@/lib/nava/timeline';
 import { sampleFloat } from '@/lib/nava/motion';
+import { sampleHardwareHighlights } from '@/lib/nava/highlights';
 import type { HardwareAnchors } from './hardware-annotations';
 export default function Product({ progress, reducedMotion, mobile, onReady, anchors }: { progress: RefObject<number>; reducedMotion: boolean; mobile: boolean; onReady: () => void; anchors: RefObject<HardwareAnchors> }) {
-  const wrist = useGLTF('/wristband.glb');
-  const modular = useGLTF('/nava-modular.glb');
+  const wrist = useGLTF('/wristband-refined.glb');
+  const modular = useGLTF('/nava-modular-refined.glb');
   const assembly = useMemo(() => resolveAssembly(wrist.scene, modular.scene), [wrist.scene, modular.scene]);
   const stage = useRef<Group>(null);
   const magneticLight = useRef<PointLight>(null);
@@ -21,6 +22,7 @@ export default function Product({ progress, reducedMotion, mobile, onReady, anch
     [...wrist, ...necklace].forEach(material => { material.transparent = true; });
     return { wrist, necklace, device: collect(assembly.device) };
   }, [assembly]);
+  const highlightMaterials = useMemo(() => Object.values(mats).flat().filter(m => m.userData.callout), [mats]);
   useEffect(() => { onReady(); }, [onReady]);
   useEffect(() => () => { Object.values(mats).flat().forEach(material => material.dispose()); }, [mats]);
   useFrame(({ clock }) => {
@@ -28,6 +30,11 @@ export default function Product({ progress, reducedMotion, mobile, onReady, anch
     // Lenis already smooths native scroll. Keep product and chapter timing in sync.
     const p = storyProgress(raw, reducedMotion);
     const pose = sampleStory(p);
+    const highlights = sampleHardwareHighlights(p);
+    for (const material of highlightMaterials) {
+      const channel = material.userData.callout as keyof typeof highlights;
+      material.emissiveIntensity = highlights[channel] * material.userData.calloutStrength;
+    }
     const framing = presentation(p, mobile);
     const root = stage.current;
     if (!root) return;

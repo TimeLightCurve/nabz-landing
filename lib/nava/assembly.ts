@@ -1,4 +1,4 @@
-import { Group, Matrix4, Mesh, MeshStandardMaterial, Object3D } from 'three';
+import { Group, Matrix4, Mesh, MeshStandardMaterial, MeshPhysicalMaterial, Object3D } from 'three';
 import { addSurfaceDetail } from './surface-material.ts';
 
 export const MODEL_SCALE = 55;
@@ -19,10 +19,16 @@ function prepare(source: Object3D): Group {
   clone.traverse(node => {
     if (!(node instanceof Mesh)) return;
     const original = node.material as MeshStandardMaterial;
-    const material = original.clone();
+    let material = original.clone();
     const name = original.name.toLowerCase();
     const part = node.name.replaceAll('_', ' ').toLowerCase();
-    if (name.includes('graphite')) {
+    if (name.includes('nava polished chrome')) {
+      material.dispose();
+      material = new MeshPhysicalMaterial({ color: original.color, metalness: 1, roughness: .18, clearcoat: .45, clearcoatRoughness: .12, iridescence: .16, iridescenceIOR: 1.3, iridescenceThicknessRange: [180, 320] });
+      material.name = original.name;
+    } else if (name.includes('nava matte') || name.includes('nava soft')) {
+      addSurfaceDetail(material, false, true);
+    } else if (name.includes('graphite')) {
       material.color.set('#233c50'); material.metalness = .88; material.roughness = .32;
       addSurfaceDetail(material, false);
     } else if (name.includes('textile')) {
@@ -37,8 +43,16 @@ function prepare(source: Object3D): Group {
     } else if (part.includes('insignia')) {
       material.color.set('#a5dce7'); material.emissive.set('#57c8e4'); material.emissiveIntensity = .38;
       material.roughness = .2;
-    } else if (part.includes('side control')) {
+    } else if (part.includes('side control') && !name.includes('nava')) {
       material.color.set('#426479'); material.metalness = .94; material.roughness = .23;
+    }
+    const microphone = part.includes('microphone') && !part.includes('chrome');
+    const magnet = part.includes('magnet') && (part.includes('callout light') || part.includes('magnetic contact'));
+    if (microphone || magnet) {
+      material.userData.callout = microphone ? 'microphone' : 'magnets';
+      material.userData.calloutStrength = part.includes('callout light') ? 3.5 : .85;
+      material.emissive.set('#65deff');
+      material.emissiveIntensity = 0;
     }
     material.envMapIntensity = 1.65;
     node.material = material;

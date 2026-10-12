@@ -34,7 +34,7 @@ test('actual assets normalize unrelated exporter scales without changing the ori
   assert.ok(assembly.necklace.getObjectByName('NECKLACE_DOCK_TARGET'));
 });
 test('actual product assemblies fit desktop and mobile through the transfer', async () => {
-  const assembly = resolveAssembly(await load('wristband'), await load('nava-modular'));
+  const assembly = resolveAssembly(await load('wristband-refined'), await load('nava-modular-refined'));
   const group = new Group(); group.add(assembly.device, assembly.wrist, assembly.necklace);
   for (const [width, height] of [[1440, 900], [768, 1024], [390, 844]]) {
     const mobile = width < 768;
@@ -74,3 +74,18 @@ test('actual product assemblies fit desktop and mobile through the transfer', as
   }
 });
 
+
+test('refined assets retain docking markers and distinct matte, chrome and callout materials', async () => {
+  const assembly = resolveAssembly(await load('wristband-refined'), await load('nava-modular-refined'));
+  const old = resolveAssembly(await load('wristband'), await load('nava-modular'));
+  assert.ok(assembly.wristDock.distanceTo(old.wristDock) < .00001);
+  assert.ok(assembly.necklaceDock.distanceTo(old.necklaceDock) < .00001);
+  const parts: Mesh[] = []; assembly.device.traverse(o => { if (o instanceof Mesh) parts.push(o); });
+  const front = parts.find(o => o.name.includes('Domed_front_shell'))!;
+  assert.ok(front, 'front shell survives export');
+  const material = front.material as import('three').MeshStandardMaterial;
+  assert.ok(material.roughness > .6 && material.metalness < .1);
+  for (const channel of ['microphone', 'magnets']) assert.ok(parts.some(o => (o.material as import('three').MeshStandardMaterial).userData.callout === channel));
+  assert.ok(parts.some(o => o.name.includes('Microphone_chrome_bezel')));
+  assert.ok(parts.some(o => o.name.includes('Magnet_callout_light')));
+});
