@@ -23,7 +23,8 @@ export function sampleStory(value: number): StoryPose {
   const dock = smooth(.65, .8, p);
   const finish = smooth(.78, 1, p);
   const framing = smooth(.3, .55, p);
-  const turning = smooth(.35, .95, p);
+  // Keep the presentation rotating even while the attachment choreography holds.
+  const turning = p;
   const y = .165 + 1.65 * lift * (1 - dock);
   const x = Math.sin(transfer * Math.PI) * .65 * (1 - dock);
   return {

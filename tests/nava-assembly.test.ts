@@ -6,6 +6,7 @@ import { readFile } from 'node:fs/promises';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { Box3, PerspectiveCamera, Mesh } from 'three';
 import { sampleStory, presentation } from '../lib/nava/timeline.ts';
+import { sampleScrollCamera } from '../lib/nava/motion.ts';
 
 test('contact frame lands on dock under unrelated parent transforms', () => {
   const dock = new Matrix4().compose(new Vector3(4, 2, -3), new Quaternion().setFromEuler(new Euler(.3, 1, -.4)), new Vector3(2, 2, 2));
@@ -40,6 +41,8 @@ test('actual product assemblies fit desktop and mobile through the transfer', as
     const camera = new PerspectiveCamera(mobile ? 48 : 36, width / height, .1, 60);
     camera.position.z = 10; camera.updateMatrixWorld();
     for (const p of [0, .27, .51, .73, 1]) {
+      const cameraPose = sampleScrollCamera(p, false, mobile);
+      camera.position.set(...cameraPose.position); camera.lookAt(...cameraPose.target); camera.updateMatrixWorld();
       const pose = sampleStory(p); const framing = presentation(p, mobile);
       group.position.set(...framing.position); group.scale.setScalar(framing.scale); group.rotation.set(...framing.rotation);
       assembly.device.position.set(...pose.device.position);

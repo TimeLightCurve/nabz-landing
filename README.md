@@ -23,8 +23,8 @@ Node 22.12 or newer supports the test command. The experimental type-stripping w
 - `lib/nava/timeline.ts`: scroll phases and responsive product framing.
 - `lib/nava/assembly.ts`: model normalization and material appearance.
 - `components/nava/scene.tsx`: camera and lighting.
-- `components/nava/camera-rig.tsx`: damped pointer parallax.
-- `lib/nava/motion.ts`: floating position and rotation amplitudes.
+- `components/nava/camera-rig.tsx`: continuous scroll camera with separately damped pointer parallax.
+- `lib/nava/motion.ts`: scroll camera path and floating position/rotation amplitudes.
 - `components/nava/use-story-progress.ts`: Lenis smoothing and chapter navigation.
 - `components/nava/atmosphere.tsx`: procedural rings, haze, and particles.
 

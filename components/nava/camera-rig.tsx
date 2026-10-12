@@ -1,12 +1,14 @@
 'use client';
 
 import { useFrame, useThree } from '@react-three/fiber';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, type RefObject } from 'react';
 import { MathUtils, Vector2 } from 'three';
+import { sampleScrollCamera } from '@/lib/nava/motion';
 
-export default function CameraRig({ reducedMotion }: { reducedMotion: boolean }) {
+export default function CameraRig({ progress, reducedMotion, mobile }: { progress: RefObject<number>; reducedMotion: boolean; mobile: boolean }) {
   const { camera } = useThree();
   const pointer = useRef(new Vector2());
+  const pointerOffset = useRef(new Vector2());
   useEffect(() => {
     const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)');
     const reset = () => pointer.current.set(0, 0);
@@ -33,11 +35,14 @@ export default function CameraRig({ reducedMotion }: { reducedMotion: boolean })
     };
   }, [camera, reducedMotion]);
   useFrame((_, delta) => {
+    const scroll = sampleScrollCamera(progress.current, reducedMotion, mobile);
     const targetX = reducedMotion ? 0 : pointer.current.x * .28;
     const targetY = reducedMotion ? 0 : pointer.current.y * .18;
-    camera.position.x = reducedMotion ? 0 : MathUtils.damp(camera.position.x, targetX, 3.5, Math.min(delta, .1));
-    camera.position.y = reducedMotion ? 0 : MathUtils.damp(camera.position.y, targetY, 3.5, Math.min(delta, .1));
-    camera.lookAt(0, 0, 0);
-  });
+    // Lenis smooths scroll already; only pointer parallax needs extra damping.
+    pointerOffset.current.x = reducedMotion ? 0 : MathUtils.damp(pointerOffset.current.x, targetX, 3.5, Math.min(delta, .1));
+    pointerOffset.current.y = reducedMotion ? 0 : MathUtils.damp(pointerOffset.current.y, targetY, 3.5, Math.min(delta, .1));
+    camera.position.set(scroll.position[0] + pointerOffset.current.x, scroll.position[1] + pointerOffset.current.y, scroll.position[2]);
+    camera.lookAt(...scroll.target);
+  }, -1);
   return null;
 }
