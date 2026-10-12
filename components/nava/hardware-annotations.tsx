@@ -1,19 +1,27 @@
 'use client';
 
-import { Html } from '@react-three/drei';
-import { useFrame, useThree } from '@react-three/fiber';
-import { useRef, type RefObject } from 'react';
-import { Group, Vector3 } from 'three';
+import { useEffect, useRef, useState, type RefObject } from 'react';
+import { Camera, Vector3 } from 'three';
 import { sampleAnnotations, storyProgress } from '@/lib/nava/timeline';
 
 export type HardwareAnchors = { microphone: Vector3; magnet: Vector3; center: Vector3; ready: boolean };
 
-export default function HardwareAnnotations({ progress, anchors, reducedMotion, mobile }: {
-  progress: RefObject<number>; anchors: RefObject<HardwareAnchors>; reducedMotion: boolean; mobile: boolean;
+export default function HardwareAnnotations({ progress, anchors, reducedMotion, cameraRef }: {
+  progress: RefObject<number>; anchors: RefObject<HardwareAnchors>; reducedMotion: boolean; cameraRef: RefObject<Camera | null>;
 }) {
-  const { size } = useThree();
+  const [size, setSize] = useState({ width: 1440, height: 900 });
+  const w = size.width; const h = size.height;
+  const mobile = w < 768;
   const root = useRef<SVGSVGElement>(null);
-  const overlayAnchor = useRef<Group>(null);
+  useEffect(() => {
+    if (!root.current) return;
+    const observer = new ResizeObserver(([entry]) => {
+      const { width, height } = entry.contentRect;
+      if (width > 0 && height > 0) setSize({ width, height });
+    });
+    observer.observe(root.current);
+    return () => observer.disconnect();
+  }, []);
   const arc = useRef<SVGCircleElement>(null);
   const tip = useRef<SVGCircleElement>(null);
   const leaders = useRef<SVGGElement>(null);
@@ -27,7 +35,6 @@ export default function HardwareAnnotations({ progress, anchors, reducedMotion, 
   const bottomLabel = useRef<SVGTextElement>(null);
   const bottomCaption = useRef<SVGTextElement>(null);
   const projected = useRef(new Vector3());
-  const w = size.width; const h = size.height;
   const endX = w * (mobile ? .9 : w < 1100 ? .72 : .785);
   const topY = h * (mobile ? .37 : .245);
   const bottomY = h * (mobile ? .76 : .745);
@@ -40,12 +47,12 @@ export default function HardwareAnnotations({ progress, anchors, reducedMotion, 
   const bendX = endX - w * (mobile ? .1 : .12);
   const leader = (x: number, y: number, endY: number, upper: boolean) => `M ${x} ${y} L ${bendX - w * .035} ${endY + (upper ? 1 : -1) * h * .045} Q ${bendX} ${endY} ${bendX + w * .04} ${endY} L ${endX} ${endY}`;
 
-  useFrame(({ camera }) => {
-    if (!root.current || !anchors.current.ready) return;
-    if (overlayAnchor.current) {
-      overlayAnchor.current.position.copy(anchors.current.center);
-      overlayAnchor.current.updateMatrixWorld(true);
-    }
+  useEffect(() => {
+    let frame = 0;
+    const update = () => {
+    frame = requestAnimationFrame(update);
+    const camera = cameraRef.current;
+    if (!root.current || !anchors.current.ready || !camera) return;
     const p = storyProgress(progress.current, reducedMotion);
     const state = sampleAnnotations(p);
     root.current.style.opacity = `${state.opacity}`;
@@ -83,11 +90,12 @@ export default function HardwareAnnotations({ progress, anchors, reducedMotion, 
     if (topCaption.current) topCaption.current.textContent = necklace ? 'A connection that clicks.' : 'Capture the thought.';
     if (bottomLabel.current) bottomLabel.current.textContent = necklace ? 'ONE DEVICE. TWO WAYS.' : 'MAGNETIC CONTACTS';
     if (bottomCaption.current) bottomCaption.current.textContent = necklace ? 'From wrist to necklace.' : 'One device. Two ways to wear.';
+    };
+    frame = requestAnimationFrame(update);
+    return () => cancelAnimationFrame(frame);
   });
 
-  // This is a screen-space overlay: visibility belongs to the story, not Html's 3D culling.
-  return <group ref={overlayAnchor}><Html fullscreen onOcclude={() => undefined} eps={0} calculatePosition={(_, __, viewport) => [viewport.width / 2, viewport.height / 2]} zIndexRange={[3, 3]} style={{ pointerEvents: 'none' }}>
-    <svg ref={root} className="hardware-annotations" width={w} height={h} viewBox={`0 0 ${w} ${h}`} style={{ opacity: 0, visibility: 'hidden' }} role="img" aria-label="NAVA hardware: built-in microphone and magnetic attachment contacts">
+  return <svg ref={root} className="hardware-annotations" width={w} height={h} viewBox={`0 0 ${w} ${h}`} style={{ opacity: 0, visibility: 'hidden' }} role="img" aria-label="NAVA hardware: built-in microphone and magnetic attachment contacts">
       <circle ref={arc} pathLength={1} strokeDasharray="1" strokeDashoffset="1" fill="none" className="hardware-orbit" />
       <circle ref={tip} r={2.5} className="orbit-tip" />
       <g ref={leaders} className="hardware-leaders">
@@ -99,6 +107,5 @@ export default function HardwareAnnotations({ progress, anchors, reducedMotion, 
         <text ref={bottomLabel} x={textX} y={bottomY + (mobile ? 26 : -4)} textAnchor={textAnchor} className="hardware-label">MAGNETIC CONTACTS</text>
         <text ref={bottomCaption} x={textX} y={bottomY + (mobile ? 46 : 20)} textAnchor={textAnchor} className="hardware-caption">One device. Two ways to wear.</text>
       </g>
-    </svg>
-  </Html></group>;
+    </svg>;
 }

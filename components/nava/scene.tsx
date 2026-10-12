@@ -1,12 +1,12 @@
 'use client';
 import { Canvas, useThree } from '@react-three/fiber';
 import { Environment, Lightformer, useGLTF } from '@react-three/drei';
-import { Suspense, useEffect, useRef, useState, type RefObject } from 'react';
-import { Vector3 } from 'three';
+import { Suspense, useEffect, useState, type RefObject } from 'react';
+import type { Camera } from 'three';
 import Product from './product';
 import Atmosphere from './atmosphere';
 import CameraRig from './camera-rig';
-import HardwareAnnotations from './hardware-annotations';
+import type { HardwareAnchors } from './hardware-annotations';
 import GroundWaves from './ground-waves';
 function Visibility() {
   const { setFrameloop, invalidate } = useThree();
@@ -18,9 +18,8 @@ function Visibility() {
   }, [setFrameloop, invalidate]);
   return null;
 }
-export default function Scene({ progress, reducedMotion, onReady, attempt }: { progress: RefObject<number>; reducedMotion: boolean; onReady: () => void; attempt: number }) {
+export default function Scene({ progress, reducedMotion, onReady, attempt, anchors, cameraRef }: { progress: RefObject<number>; reducedMotion: boolean; onReady: () => void; attempt: number; anchors: RefObject<HardwareAnchors>; cameraRef: RefObject<Camera | null> }) {
   const [mobile, setMobile] = useState(false);
-  const anchors = useRef({ microphone: new Vector3(), magnet: new Vector3(), center: new Vector3(), ready: false });
   const [cacheReady, setCacheReady] = useState(attempt === 0);
   useEffect(() => {
     if (attempt > 0) { useGLTF.clear('/wristband.glb'); useGLTF.clear('/nava-modular.glb'); setCacheReady(true); }
@@ -32,7 +31,7 @@ export default function Scene({ progress, reducedMotion, onReady, attempt }: { p
   if (!cacheReady) return null;
   return <Canvas aria-label="NAVA device transforming from wristband to necklace" dpr={[1, mobile ? 1.25 : 1.75]} camera={{ position: [0, 0, 10], fov: mobile ? 48 : 36, near: .1, far: 120 }} gl={{ alpha: true, antialias: true, powerPreference: 'high-performance' }}>
     <Visibility />
-    <CameraRig progress={progress} reducedMotion={reducedMotion} mobile={mobile} anchors={anchors} />
+    <CameraRig progress={progress} reducedMotion={reducedMotion} mobile={mobile} anchors={anchors} cameraRef={cameraRef} />
     <ambientLight intensity={.65} color="#9fc9e5" />
     <directionalLight position={[2, 5, 5]} intensity={4} color="#d0eaff" />
     <directionalLight position={[-4, 0, 2]} intensity={5} color="#4cafff" />
@@ -46,6 +45,5 @@ export default function Scene({ progress, reducedMotion, onReady, attempt }: { p
     <Atmosphere reducedMotion={reducedMotion} mobile={mobile} anchors={anchors} />
     <GroundWaves progress={progress} reducedMotion={reducedMotion} />
     <Suspense fallback={null}><Product progress={progress} reducedMotion={reducedMotion} mobile={mobile} onReady={onReady} anchors={anchors} /></Suspense>
-    <HardwareAnnotations progress={progress} anchors={anchors} reducedMotion={reducedMotion} mobile={mobile} />
   </Canvas>;
 }

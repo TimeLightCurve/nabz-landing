@@ -56,8 +56,9 @@ test('opening descends from an overhead view to a level orbit as the device rise
   assert.ok(angle(opening) > 1, 'opening looks down at the ground');
   assert.ok(Math.abs(angle(level)) < .03, 'camera levels before full orbit');
   assert.ok(level.target[1] > opening.target[1] + 2, 'device rises above the ground');
-  assert.ok(sampleStory(.65).device.rotation[1] > sampleStory(.4).device.rotation[1] + 2, 'device itself rotates on Y');
-  assert.ok(Math.abs(sampleStory(1).device.rotation[1] - 2 * Math.PI) < 1e-9, 'Y rotation returns to docking orientation');
+  assert.ok(sampleStory(.55).device.rotation[1] > .5, 'device retains a gentle Y turn');
+  for (let p = 0; p <= 1; p += .01) assert.ok(sampleStory(p).device.rotation.every(angle => Math.abs(angle) <= .65), 'device does not tumble through full spins');
+  assert.ok(Math.abs(sampleStory(1).device.rotation[1]) < 1e-9, 'Y rotation returns to docking orientation');
 });
 
 test('camera and product rotation respond to every scroll interval, including the opening and ending', () => {

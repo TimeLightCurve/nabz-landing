@@ -4,9 +4,13 @@ import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import { CHAPTERS } from '@/lib/nava/timeline';
 import { jumpToChapter, useStoryProgress } from './use-story-progress';
 import SceneBoundary from './scene-boundary';
+import HardwareAnnotations from './hardware-annotations';
+import { Camera, Vector3 } from 'three';
 const Scene = dynamic(() => import('./scene'), { ssr: false });
 export default function Experience({ children }: { children: ReactNode }) {
   const container = useRef<HTMLElement>(null);
+  const cameraRef = useRef<Camera | null>(null);
+  const anchors = useRef({ microphone: new Vector3(), magnet: new Vector3(), center: new Vector3(), ready: false });
   const menuButton = useRef<HTMLButtonElement>(null);
   const firstLink = useRef<HTMLAnchorElement>(null);
   const { progress, chapter, lenis } = useStoryProgress(container);
@@ -48,9 +52,10 @@ export default function Experience({ children }: { children: ReactNode }) {
       <div className="ambient-backdrop" /><div className="grain" />
       <div className="scene-layer">
         <SceneBoundary onError={onError} onRetry={() => { setReady(false); setFailed(false); setAttempt(n => n + 1); }}>
-          {webgl ? <Scene key={attempt} progress={progress} reducedMotion={reduced} onReady={onReady} attempt={attempt} /> : <div className="webgl-fallback"><span>N</span><p>A little closer to every thought.</p></div>}
+          {webgl ? <Scene key={attempt} progress={progress} reducedMotion={reduced} onReady={onReady} attempt={attempt} anchors={anchors} cameraRef={cameraRef} /> : <div className="webgl-fallback"><span>N</span><p>A little closer to every thought.</p></div>}
         </SceneBoundary>
       </div>
+      {webgl && !failed && <HardwareAnnotations progress={progress} anchors={anchors} cameraRef={cameraRef} reducedMotion={reduced} />}
       <header className="site-header">
         <a href="#within-reach" className="wordmark" aria-label="NAVA — back to the beginning" onClick={e => { e.preventDefault(); navigate(0); }}>nava<span className="brand-dot" /></a>
         <span className="header-caption">A LITTLE CLOSER TO YOUR MIND</span>

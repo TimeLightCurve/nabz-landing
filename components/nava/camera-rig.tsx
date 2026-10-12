@@ -2,11 +2,11 @@
 
 import { useFrame, useThree } from '@react-three/fiber';
 import { useEffect, useRef, type RefObject } from 'react';
-import { MathUtils, Vector2 } from 'three';
+import { Camera, MathUtils, Vector2 } from 'three';
 import { sampleScrollCamera } from '@/lib/nava/motion';
 import type { HardwareAnchors } from './hardware-annotations';
 
-export default function CameraRig({ progress, reducedMotion, mobile, anchors }: { progress: RefObject<number>; reducedMotion: boolean; mobile: boolean; anchors: RefObject<HardwareAnchors> }) {
+export default function CameraRig({ progress, reducedMotion, mobile, anchors, cameraRef }: { progress: RefObject<number>; reducedMotion: boolean; mobile: boolean; anchors: RefObject<HardwareAnchors>; cameraRef: RefObject<Camera | null> }) {
   const { camera, size } = useThree();
   const pointer = useRef(new Vector2());
   const pointerOffset = useRef(new Vector2());
@@ -48,6 +48,8 @@ export default function CameraRig({ progress, reducedMotion, mobile, anchors }: 
     camera.position.set(scroll.position[0] + x - scroll.target[0] + pointerOffset.current.x, scroll.position[1] + y - scroll.target[1] + pointerOffset.current.y, scroll.position[2] + z - scroll.target[2]);
     camera.lookAt(x, y, z);
     camera.updateMatrixWorld();
+    // Publish the live camera to the DOM overlay after applying this frame.
+    cameraRef.current = camera;
   }, -1);
   return null;
 }

@@ -30,7 +30,7 @@ export function sampleStory(value: number): StoryPose {
   const y = .165 + 1.35 * lift * (1 - dock);
   const x = TRANSFER_DISTANCE * transfer;
   return {
-    device: { position: [x, y, 0], rotation: [Math.sin(spin * Math.PI) * .28, Math.PI * 2 * spin, -Math.PI * 2 * spin] },
+    device: { position: [x, y, 0], rotation: [Math.sin(spin * Math.PI) * .1, Math.sin(spin * Math.PI) * .65, Math.sin(spin * Math.PI * 2) * .12] },
     wristX: 0,
     necklaceX: TRANSFER_DISTANCE,
     wristOpacity: 1 - smooth(.3, .43, p),
