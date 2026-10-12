@@ -680,7 +680,7 @@ button:focus-visible,a:focus-visible {
 .chapter-description { width: 260px; }
 .chapter-description p { font-size: 18px; line-height: 1.55; }
 .chapter-description .eyebrow { font-size: 10px; color: #a8c3d4; }
-.chapter-2 .chapter-description { left: 7.2%; right: auto; bottom: 23%; }
+:is(.chapter-2, .chapter-3) .chapter-description { left: 7.2%; right: auto; bottom: 23%; }
 .hardware-annotations { overflow: visible; pointer-events: none; }
 .hardware-orbit { stroke: #85c9ff; stroke-width: 1.2; filter: drop-shadow(0 0 5px #398bd3); }
 .orbit-tip { fill: #d3f3ff; filter: drop-shadow(0 0 7px #66c5ff); }
@@ -703,18 +703,18 @@ button:focus-visible,a:focus-visible {
   .chapter-description { width: 240px; bottom: 15%; }
   .chapter-description p { font-size: 15px; }
   .chapter-description .eyebrow { font-size: 8px; }
-  .chapter-2 .chapter-description { left: 27px; bottom: 13%; }
-  .chapter-2 .chapter-heading { top: 13%; }
-  .chapter-2 .chapter-note { display: none; }
-  .chapter-2 .chapter-description p { display: none; }
-  .chapter-2 .chapter-description .eyebrow { display: none; }
+  :is(.chapter-2, .chapter-3) .chapter-description { left: 27px; bottom: 13%; }
+  :is(.chapter-2, .chapter-3) .chapter-heading { top: 13%; }
+  :is(.chapter-2, .chapter-3) .chapter-note { display: none; }
+  :is(.chapter-2, .chapter-3) .chapter-description p { display: none; }
+  :is(.chapter-2, .chapter-3) .chapter-description .eyebrow { display: none; }
   .hardware-label { font-size: 12px; letter-spacing: .2px; }
   .hardware-caption { font-size: 12px; }
 }
 @media (max-height: 550px) {
   .chapter-description p { font-size: 13px; }
   .chapter-description .eyebrow { font-size: 8px; }
-  .chapter-2 .chapter-description { bottom: 20%; }
+  :is(.chapter-2, .chapter-3) .chapter-description { bottom: 20%; }
 }
 @media (prefers-reduced-motion: reduce) {
   .chapter, .chapter-heading { transition: none; }

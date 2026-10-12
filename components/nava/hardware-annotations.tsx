@@ -18,15 +18,23 @@ export default function HardwareAnnotations({ progress, anchors, reducedMotion, 
   const leaders = useRef<SVGGElement>(null);
   const topPath = useRef<SVGPathElement>(null);
   const bottomPath = useRef<SVGPathElement>(null);
-  const topDot = useRef<SVGCircleElement>(null);
-  const bottomDot = useRef<SVGCircleElement>(null);
-  const projected = useRef([new Vector3(), new Vector3(), new Vector3()]);
+  const topLabel = useRef<SVGTextElement>(null);
+  const topCaption = useRef<SVGTextElement>(null);
+  const bottomLabel = useRef<SVGTextElement>(null);
+  const bottomCaption = useRef<SVGTextElement>(null);
+  const projected = useRef(new Vector3());
   const w = size.width; const h = size.height;
   const endX = w * (mobile ? .9 : w < 1100 ? .72 : .785);
   const topY = h * (mobile ? .37 : .245);
   const bottomY = h * (mobile ? .76 : .745);
   const textX = mobile ? endX : endX + 24;
   const textAnchor = mobile ? 'end' : 'start';
+  // Authored screen-space leaders: only their reveal changes during scroll.
+  const startX = w * (mobile ? .48 : .62);
+  const upperStartY = h * .43;
+  const lowerStartY = h * .61;
+  const bendX = endX - w * (mobile ? .1 : .12);
+  const leader = (startY: number, endY: number) => `M ${startX} ${startY} L ${bendX - w * .035} ${endY + (startY - endY) * .2} Q ${bendX} ${endY} ${bendX + w * .04} ${endY} L ${endX} ${endY}`;
 
   useFrame(({ camera }) => {
     if (!root.current || !anchors.current.ready) return;
@@ -36,11 +44,9 @@ export default function HardwareAnnotations({ progress, anchors, reducedMotion, 
     root.current.style.visibility = state.opacity < .01 ? 'hidden' : 'visible';
     root.current.setAttribute('aria-hidden', state.opacity < .01 ? 'true' : 'false');
     if (state.opacity < .01) return;
-    const [mic, magnet, center] = projected.current;
-    mic.copy(anchors.current.microphone).project(camera);
-    magnet.copy(anchors.current.magnet).project(camera);
+    const center = projected.current;
     center.copy(anchors.current.center).project(camera);
-    for (const point of projected.current) { point.x = (point.x + 1) * w / 2; point.y = (1 - point.y) * h / 2; }
+    center.x = (center.x + 1) * w / 2; center.y = (1 - center.y) * h / 2;
     const radius = Math.min(w * (mobile ? .39 : .23), h * .3);
     const cx = center.x; const cy = center.y;
     const draw = reducedMotion ? 1 : state.draw;
@@ -51,15 +57,15 @@ export default function HardwareAnnotations({ progress, anchors, reducedMotion, 
     const angle = (-115 + draw * 360) * Math.PI / 180;
     tip.current?.setAttribute('cx', `${cx + Math.cos(angle) * radius}`);
     tip.current?.setAttribute('cy', `${cy + Math.sin(angle) * radius}`);
-    if (leaders.current) leaders.current.style.opacity = `${state.labels}`;
-    const leader = (point: Vector3, y: number) => {
-      const run = mobile ? w * .16 : w * .13;
-      return `M ${point.x} ${point.y} C ${point.x + run * .55} ${point.y}, ${endX - run * 1.35} ${y}, ${endX - run} ${y} L ${endX} ${y}`;
-    };
-    topPath.current?.setAttribute('d', leader(mic, topY));
-    bottomPath.current?.setAttribute('d', leader(magnet, bottomY));
-    topDot.current?.setAttribute('cx', `${mic.x}`); topDot.current?.setAttribute('cy', `${mic.y}`);
-    bottomDot.current?.setAttribute('cx', `${magnet.x}`); bottomDot.current?.setAttribute('cy', `${magnet.y}`);
+    const necklace = p >= .79;
+    const reveal = necklace ? state.necklaceLabels : state.labels;
+    if (leaders.current) leaders.current.style.opacity = `${reveal}`;
+    topPath.current?.setAttribute('stroke-dashoffset', `${1 - reveal}`);
+    bottomPath.current?.setAttribute('stroke-dashoffset', `${1 - reveal}`);
+    if (topLabel.current) topLabel.current.textContent = necklace ? 'MAGNETIC NECKLACE' : 'BUILT-IN MICROPHONE';
+    if (topCaption.current) topCaption.current.textContent = necklace ? 'A connection that clicks.' : 'Capture the thought.';
+    if (bottomLabel.current) bottomLabel.current.textContent = necklace ? 'ONE DEVICE. TWO WAYS.' : 'MAGNETIC CONTACTS';
+    if (bottomCaption.current) bottomCaption.current.textContent = necklace ? 'From wrist to necklace.' : 'One device. Two ways to wear.';
   });
 
   return <Html fullscreen calculatePosition={(_, __, viewport) => [viewport.width / 2, viewport.height / 2]} zIndexRange={[3, 3]} style={{ pointerEvents: 'none' }}>
@@ -67,13 +73,13 @@ export default function HardwareAnnotations({ progress, anchors, reducedMotion, 
       <circle ref={arc} pathLength={1} strokeDasharray="1" strokeDashoffset="1" fill="none" className="hardware-orbit" />
       <circle ref={tip} r={2.5} className="orbit-tip" />
       <g ref={leaders} className="hardware-leaders">
-        <path ref={topPath} fill="none" /><path ref={bottomPath} fill="none" />
-        <circle ref={topDot} r={2.7} /><circle ref={bottomDot} r={2.7} />
+        <path ref={topPath} d={leader(upperStartY, topY)} pathLength={1} strokeDasharray="1" fill="none" /><path ref={bottomPath} d={leader(lowerStartY, bottomY)} pathLength={1} strokeDasharray="1" fill="none" />
+        <circle cx={startX} cy={upperStartY} r={2.7} /><circle cx={startX} cy={lowerStartY} r={2.7} />
         <circle cx={endX} cy={topY} r={1.8} /><circle cx={endX} cy={bottomY} r={1.8} />
-        <text x={textX} y={topY + (mobile ? -34 : -4)} textAnchor={textAnchor} className="hardware-label">BUILT-IN MICROPHONE</text>
-        <text x={textX} y={topY + (mobile ? -15 : 20)} textAnchor={textAnchor} className="hardware-caption">Capture the thought.</text>
-        <text x={textX} y={bottomY + (mobile ? 26 : -4)} textAnchor={textAnchor} className="hardware-label">MAGNETIC CONTACTS</text>
-        <text x={textX} y={bottomY + (mobile ? 46 : 20)} textAnchor={textAnchor} className="hardware-caption">One device. Two ways to wear.</text>
+        <text ref={topLabel} x={textX} y={topY + (mobile ? -34 : -4)} textAnchor={textAnchor} className="hardware-label">BUILT-IN MICROPHONE</text>
+        <text ref={topCaption} x={textX} y={topY + (mobile ? -15 : 20)} textAnchor={textAnchor} className="hardware-caption">Capture the thought.</text>
+        <text ref={bottomLabel} x={textX} y={bottomY + (mobile ? 26 : -4)} textAnchor={textAnchor} className="hardware-label">MAGNETIC CONTACTS</text>
+        <text ref={bottomCaption} x={textX} y={bottomY + (mobile ? 46 : 20)} textAnchor={textAnchor} className="hardware-caption">One device. Two ways to wear.</text>
       </g>
     </svg>
   </Html>;

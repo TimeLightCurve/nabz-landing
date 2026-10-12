@@ -15,6 +15,18 @@ test('reduced motion removes every floating offset', () => {
   for (const t of [0, 1, 30, 1000]) assert.deepEqual(sampleFloat(t, true), { position: [0, 0, 0], rotation: [0, 0, 0] });
 });
 
+test('camera pushes in, orbits both sides of the device, and ends in a close-up', () => {
+  for (const mobile of [false, true]) {
+    const distance = (p: number) => { const c = sampleScrollCamera(p, false, mobile); return Math.hypot(...c.position.map((v, i) => v - c.target[i])); };
+    assert.ok(distance(0) > distance(.25) + 1.5);
+    assert.ok(distance(1) < distance(.92) * .55);
+    const left = sampleScrollCamera(.42, false, mobile);
+    const right = sampleScrollCamera(.73, false, mobile);
+    assert.ok(left.position[0] - left.target[0] > 1);
+    assert.ok(right.position[0] - right.target[0] < -1);
+  }
+});
+
 test('camera and product rotation respond to every scroll interval, including the opening and ending', () => {
   for (let i = 0; i < 1000; i++) {
     const a = i / 1000; const b = (i + 1) / 1000;

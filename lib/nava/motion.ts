@@ -1,5 +1,5 @@
 import { Euler, Vector3 } from 'three';
-import { presentation, sampleStory, storyProgress } from './timeline.ts';
+import { presentation, sampleStory, storyProgress, smooth } from './timeline.ts';
 type Vec3 = [number, number, number];
 
 export function sampleScrollCamera(progress: number, reducedMotion: boolean, mobile: boolean): { position: Vec3; target: Vec3 } {
@@ -8,11 +8,18 @@ export function sampleScrollCamera(progress: number, reducedMotion: boolean, mob
   const pose = sampleStory(p);
   const framing = presentation(p, mobile);
   const track = new Vector3(pose.device.position[0], 0, 0).multiplyScalar(framing.scale).applyEuler(new Euler(...framing.rotation));
-  const motion = reducedMotion ? 0 : amount;
+  const close = smooth(.92, 1, p);
+  const deviceCenter = new Vector3(...pose.device.position).multiplyScalar(framing.scale).applyEuler(new Euler(...framing.rotation)).add(new Vector3(...framing.position));
+  // Preserve room for the chapter copy, then focus the final shot on the capsule.
+  deviceCenter.x -= mobile ? 0 : .65;
+  deviceCenter.y += mobile ? .65 : .05;
+  track.lerp(deviceCenter, close);
+  const orbit = reducedMotion ? 0 : Math.sin(smooth(.25, .9, p) * Math.PI * 2) * .38 * amount;
+  const elevation = reducedMotion ? 0 : Math.sin(p * Math.PI * 2) * .22 * amount;
+  const distance = reducedMotion ? 10 : (12 - 2.2 * smooth(0, .27, p) - .25 * p) * (1 - close) + (mobile ? 4.5 : 4.2) * close;
   return {
-    // Track the device's real travel in world space, with a secondary camera orbit.
-    position: [track.x + Math.sin(p * Math.PI * 1.2) * .65 * motion, track.y + Math.sin(p * Math.PI * 2) * .16 * motion, track.z + 10 + p * .45 * motion],
-    target: [track.x + p * .12 * motion, track.y - p * .04 * motion, track.z],
+    position: [track.x + Math.sin(orbit) * distance, track.y + elevation, track.z + Math.cos(orbit) * distance],
+    target: [track.x, track.y, track.z],
   };
 }
 

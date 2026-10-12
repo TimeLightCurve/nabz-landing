@@ -18,4 +18,6 @@ Desktop screenshot capture timed out through the available Windows tool, and nat
 
 ## Implementation notes
 
+Latest refinement: fixed screen-space curved leaders reveal without following the mesh; a second label pair appears during the necklace section. The ring remains through 96% of the story before fading. Camera starts farther away, dollies forward, sweeps around both sides during rotation, and closes on the capsule. The final macro intentionally crops the cord. All 14 tests pass, including capsule framing through 14 sampled positions on desktop and mobile; production build and targeted lint pass. Visual-capture limitations above still apply.
+
 The existing user development server remains available at http://localhost:3000. Blender and the original GLBs were not modified. Work is on `feat/nava-cinematic`. The user's existing dependency edits and reference/model assets were preserved. No deployment or external publication occurred.

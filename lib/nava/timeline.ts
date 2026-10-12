@@ -49,8 +49,9 @@ export function storyProgress(p: number, reduced: boolean) {
 export function sampleAnnotations(p: number) {
   return {
     draw: Math.max(0, Math.min(1, (p - .24) / .4)),
-    opacity: smooth(.23, .27, p) * (1 - smooth(.77, .82, p)),
+    opacity: smooth(.23, .27, p) * (1 - smooth(.96, 1, p)),
     labels: smooth(.32, .36, p) * (1 - smooth(.75, .79, p)),
+    necklaceLabels: smooth(.8, .84, p) * (1 - smooth(.92, .94, p)),
   };
 }
 

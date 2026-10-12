@@ -40,7 +40,7 @@ test('actual product assemblies fit desktop and mobile through the transfer', as
     const mobile = width < 768;
     const camera = new PerspectiveCamera(mobile ? 48 : 36, width / height, .1, 60);
     camera.position.z = 10; camera.updateMatrixWorld();
-    for (const p of [0, .23, .35, .45, .55, .65, .73, .82, .86, .92, 1]) {
+    for (const p of [0, .23, .35, .45, .55, .65, .73, .82, .86, .92, .94, .96, .98, 1]) {
       const cameraPose = sampleScrollCamera(p, false, mobile);
       camera.position.set(...cameraPose.position); camera.lookAt(...cameraPose.target); camera.updateMatrixWorld();
       const pose = sampleStory(p); const framing = presentation(p, mobile);
@@ -51,7 +51,8 @@ test('actual product assemblies fit desktop and mobile through the transfer', as
       group.updateMatrixWorld(true);
       const visible = [assembly.device];
       if (pose.wristOpacity > .5) visible.push(assembly.wrist);
-      if (pose.necklaceOpacity > .3) visible.push(assembly.necklace);
+      // The closing macro shot intentionally crops the cord; the capsule must stay in frame.
+      if (pose.necklaceOpacity > .3 && p <= .92) visible.push(assembly.necklace);
       for (const root of visible) root.traverse(node => {
         if (!(node instanceof Mesh)) return;
         const attr = node.geometry.attributes.position; const v = new Vector3();

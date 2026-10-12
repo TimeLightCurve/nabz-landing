@@ -42,5 +42,11 @@ test('spec arc draws with scroll and labels hold through the showcase', () => {
     assert.ok(state.draw >= previous); previous = state.draw;
   }
   for (const p of [.4, .5, .6, .7]) assert.equal(sampleAnnotations(p).labels, 1);
+  for (const p of [.85, .9, .92]) {
+    assert.equal(sampleAnnotations(p).opacity, 1);
+    assert.equal(sampleAnnotations(p).necklaceLabels, 1);
+  }
+  assert.equal(sampleAnnotations(.94).necklaceLabels, 0, 'clear labels before closing copy enters');
+  assert.equal(sampleAnnotations(.95).opacity, 1, 'ring holds after labels fade');
   assert.equal(sampleAnnotations(1).opacity, 0);
 });
