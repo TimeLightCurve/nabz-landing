@@ -19,6 +19,9 @@ export default function HardwareAnnotations({ progress, anchors, reducedMotion, 
   const leaders = useRef<SVGGElement>(null);
   const topPath = useRef<SVGPathElement>(null);
   const bottomPath = useRef<SVGPathElement>(null);
+  const topDot = useRef<SVGCircleElement>(null);
+  const bottomDot = useRef<SVGCircleElement>(null);
+  const attachment = useRef(new Vector3());
   const topLabel = useRef<SVGTextElement>(null);
   const topCaption = useRef<SVGTextElement>(null);
   const bottomLabel = useRef<SVGTextElement>(null);
@@ -30,12 +33,12 @@ export default function HardwareAnnotations({ progress, anchors, reducedMotion, 
   const bottomY = h * (mobile ? .76 : .745);
   const textX = mobile ? endX : endX + 24;
   const textAnchor = mobile ? 'end' : 'start';
-  // Authored screen-space leaders: only their reveal changes during scroll.
+  // Keep the elbows and label runs authored; only the attachment segment follows the mesh.
   const startX = w * (mobile ? .48 : .62);
   const upperStartY = h * .43;
   const lowerStartY = h * .61;
   const bendX = endX - w * (mobile ? .1 : .12);
-  const leader = (startY: number, endY: number) => `M ${startX} ${startY} L ${bendX - w * .035} ${endY + (startY - endY) * .2} Q ${bendX} ${endY} ${bendX + w * .04} ${endY} L ${endX} ${endY}`;
+  const leader = (x: number, y: number, endY: number, upper: boolean) => `M ${x} ${y} L ${bendX - w * .035} ${endY + (upper ? 1 : -1) * h * .045} Q ${bendX} ${endY} ${bendX + w * .04} ${endY} L ${endX} ${endY}`;
 
   useFrame(({ camera }) => {
     if (!root.current || !anchors.current.ready) return;
@@ -65,6 +68,14 @@ export default function HardwareAnnotations({ progress, anchors, reducedMotion, 
     const necklace = p >= .79;
     root.current.setAttribute('aria-label', necklace ? 'NAVA magnetic necklace: one device, two ways to wear.' : 'NAVA hardware: built-in microphone and magnetic attachment contacts');
     const reveal = necklace ? state.necklaceLabels : state.labels;
+    const trackAttachment = (point: Vector3, path: SVGPathElement | null, dot: SVGCircleElement | null, endY: number, upper: boolean) => {
+      const v = attachment.current.copy(point).project(camera);
+      const x = (v.x + 1) * w / 2; const y = (1 - v.y) * h / 2;
+      path?.setAttribute('d', leader(x, y, endY, upper));
+      dot?.setAttribute('cx', `${x}`); dot?.setAttribute('cy', `${y}`);
+    };
+    trackAttachment(anchors.current.microphone, topPath.current, topDot.current, topY, true);
+    trackAttachment(anchors.current.magnet, bottomPath.current, bottomDot.current, bottomY, false);
     if (leaders.current) leaders.current.style.opacity = `${reveal}`;
     topPath.current?.setAttribute('stroke-dashoffset', `${1 - reveal}`);
     bottomPath.current?.setAttribute('stroke-dashoffset', `${1 - reveal}`);
@@ -80,8 +91,8 @@ export default function HardwareAnnotations({ progress, anchors, reducedMotion, 
       <circle ref={arc} pathLength={1} strokeDasharray="1" strokeDashoffset="1" fill="none" className="hardware-orbit" />
       <circle ref={tip} r={2.5} className="orbit-tip" />
       <g ref={leaders} className="hardware-leaders">
-        <path ref={topPath} d={leader(upperStartY, topY)} pathLength={1} strokeDasharray="1" fill="none" /><path ref={bottomPath} d={leader(lowerStartY, bottomY)} pathLength={1} strokeDasharray="1" fill="none" />
-        <circle cx={startX} cy={upperStartY} r={2.7} /><circle cx={startX} cy={lowerStartY} r={2.7} />
+        <path ref={topPath} d={leader(startX, upperStartY, topY, true)} pathLength={1} strokeDasharray="1" fill="none" /><path ref={bottomPath} d={leader(startX, lowerStartY, bottomY, false)} pathLength={1} strokeDasharray="1" fill="none" />
+        <circle ref={topDot} cx={startX} cy={upperStartY} r={2.7} /><circle ref={bottomDot} cx={startX} cy={lowerStartY} r={2.7} />
         <circle cx={endX} cy={topY} r={1.8} /><circle cx={endX} cy={bottomY} r={1.8} />
         <text ref={topLabel} x={textX} y={topY + (mobile ? -34 : -4)} textAnchor={textAnchor} className="hardware-label">BUILT-IN MICROPHONE</text>
         <text ref={topCaption} x={textX} y={topY + (mobile ? -15 : 20)} textAnchor={textAnchor} className="hardware-caption">Capture the thought.</text>

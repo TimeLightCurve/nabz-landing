@@ -7,6 +7,7 @@ import Product from './product';
 import Atmosphere from './atmosphere';
 import CameraRig from './camera-rig';
 import HardwareAnnotations from './hardware-annotations';
+import GroundWaves from './ground-waves';
 function Visibility() {
   const { setFrameloop, invalidate } = useThree();
   useEffect(() => {
@@ -43,6 +44,7 @@ export default function Scene({ progress, reducedMotion, onReady, attempt }: { p
       <Lightformer position={[0, -4, 2]} scale={[4, 1, 1]} intensity={2} color="#85d9ec" target={[0, 0, 0]} />
     </Environment>
     <Atmosphere reducedMotion={reducedMotion} mobile={mobile} anchors={anchors} />
+    <GroundWaves progress={progress} reducedMotion={reducedMotion} />
     <Suspense fallback={null}><Product progress={progress} reducedMotion={reducedMotion} mobile={mobile} onReady={onReady} anchors={anchors} /></Suspense>
     <HardwareAnnotations progress={progress} anchors={anchors} reducedMotion={reducedMotion} mobile={mobile} />
   </Canvas>;

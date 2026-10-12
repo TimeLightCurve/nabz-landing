@@ -11,10 +11,11 @@ export function sampleScrollCamera(progress: number, reducedMotion: boolean, mob
   const track = new Vector3(...pose.device.position).multiplyScalar(framing.scale).applyEuler(new Euler(...framing.rotation)).add(new Vector3(...framing.position));
   const orbit = reducedMotion ? 0 : smooth(.33, .78, p) * Math.PI * 2;
   const elevation = reducedMotion ? 0 : Math.sin(p * Math.PI * 2) * .22 * amount;
+  const pitch = 1.08 * (1 - smooth(.04, .33, p));
   const fit = Math.max(1, (mobile ? .42 : .98) / Math.max(.2, aspect));
   const distance = (reducedMotion ? 10 + 5 * smooth(.74, .82, p) * (1 - close) : (12 - 2.2 * smooth(0, .27, p) - .25 * p + 5 * smooth(.74, .82, p)) * (1 - close) + (mobile ? 4.5 : 4.2) * close) * fit;
   return {
-    position: [track.x + Math.sin(orbit) * distance, track.y + elevation, track.z + Math.cos(orbit) * distance],
+    position: [track.x + Math.sin(orbit) * distance * Math.cos(pitch), track.y + Math.sin(pitch) * distance + elevation, track.z + Math.cos(orbit) * distance * Math.cos(pitch)],
     target: [track.x, track.y, track.z],
   };
 }

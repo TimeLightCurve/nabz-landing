@@ -30,13 +30,13 @@ export function sampleStory(value: number): StoryPose {
   const y = .165 + 1.35 * lift * (1 - dock);
   const x = TRANSFER_DISTANCE * transfer;
   return {
-    device: { position: [x, y, 0], rotation: [Math.sin(spin * Math.PI) * .28, Math.sin(spin * Math.PI) * .45, -Math.PI * 2 * spin] },
+    device: { position: [x, y, 0], rotation: [Math.sin(spin * Math.PI) * .28, Math.PI * 2 * spin, -Math.PI * 2 * spin] },
     wristX: 0,
     necklaceX: TRANSFER_DISTANCE,
     wristOpacity: 1 - smooth(.3, .43, p),
     necklaceOpacity: smooth(.78, .87, p),
     rotation: [lerp(1.08, 1.4, turning), lerp(.4, -.18, turning), lerp(-.56, -.12, turning)],
-    position: [0, lerp(.78 - .75 * smooth(.14, .31, p), -1.85, framing), 0],
+    position: [0, lerp(.78 + 2.5 * smooth(.08, .32, p), -1.85, framing), 0],
     scale: lerp(1.03 + .08 * Math.sin(transfer * Math.PI), .57, framing),
     glow: Math.sin(dock * Math.PI) * .8 + finish * .12,
   };
