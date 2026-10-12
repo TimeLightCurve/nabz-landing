@@ -6,7 +6,7 @@ import { readFile } from 'node:fs/promises';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { Box3, PerspectiveCamera, Mesh } from 'three';
 import { sampleStory, presentation } from '../lib/nava/timeline.ts';
-import { sampleScrollCamera } from '../lib/nava/motion.ts';
+import { sampleScrollCamera, sampleFloat } from '../lib/nava/motion.ts';
 
 test('contact frame lands on dock under unrelated parent transforms', () => {
   const dock = new Matrix4().compose(new Vector3(4, 2, -3), new Quaternion().setFromEuler(new Euler(.3, 1, -.4)), new Vector3(2, 2, 2));
@@ -36,15 +36,23 @@ test('actual assets normalize unrelated exporter scales without changing the ori
 test('actual product assemblies fit desktop and mobile through the transfer', async () => {
   const assembly = resolveAssembly(await load('wristband'), await load('nava-modular'));
   const group = new Group(); group.add(assembly.device, assembly.wrist, assembly.necklace);
-  for (const [width, height] of [[1440, 900], [390, 844]]) {
+  for (const [width, height] of [[1440, 900], [768, 1024], [390, 844]]) {
     const mobile = width < 768;
     const camera = new PerspectiveCamera(mobile ? 48 : 36, width / height, .1, 60);
     camera.position.z = 10; camera.updateMatrixWorld();
     for (const p of [0, .23, .35, .45, .55, .65, .73, .82, .86, .92, .94, .96, .98, 1]) {
-      const cameraPose = sampleScrollCamera(p, false, mobile);
+      const cameraPose = sampleScrollCamera(p, false, mobile, width / height);
       camera.position.set(...cameraPose.position); camera.lookAt(...cameraPose.target); camera.updateMatrixWorld();
       const pose = sampleStory(p); const framing = presentation(p, mobile);
       group.position.set(...framing.position); group.scale.setScalar(framing.scale); group.rotation.set(...framing.rotation);
+      // Exercise a floating pose and maximum pointer offset on the narrow tablet.
+      if (width === 768) {
+        const floating = sampleFloat(3, false);
+        group.position.add(new Vector3(...floating.position));
+        group.rotation.set(...framing.rotation.map((value, i) => value + floating.rotation[i]) as [number, number, number]);
+        camera.position.x += .28; camera.position.y += .18;
+        camera.lookAt(...cameraPose.target); camera.updateMatrixWorld();
+      }
       assembly.device.position.set(...pose.device.position);
       assembly.device.rotation.set(...pose.device.rotation);
       assembly.wrist.position.x = pose.wristX; assembly.necklace.position.x = pose.necklaceX;

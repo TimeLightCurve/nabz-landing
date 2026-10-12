@@ -58,6 +58,7 @@ export default function HardwareAnnotations({ progress, anchors, reducedMotion, 
     tip.current?.setAttribute('cx', `${cx + Math.cos(angle) * radius}`);
     tip.current?.setAttribute('cy', `${cy + Math.sin(angle) * radius}`);
     const necklace = p >= .79;
+    root.current.setAttribute('aria-label', necklace ? 'NAVA magnetic necklace: one device, two ways to wear.' : 'NAVA hardware: built-in microphone and magnetic attachment contacts');
     const reveal = necklace ? state.necklaceLabels : state.labels;
     if (leaders.current) leaders.current.style.opacity = `${reveal}`;
     topPath.current?.setAttribute('stroke-dashoffset', `${1 - reveal}`);

@@ -6,7 +6,7 @@ import { MathUtils, Vector2 } from 'three';
 import { sampleScrollCamera } from '@/lib/nava/motion';
 
 export default function CameraRig({ progress, reducedMotion, mobile }: { progress: RefObject<number>; reducedMotion: boolean; mobile: boolean }) {
-  const { camera } = useThree();
+  const { camera, size } = useThree();
   const pointer = useRef(new Vector2());
   const pointerOffset = useRef(new Vector2());
   useEffect(() => {
@@ -35,7 +35,7 @@ export default function CameraRig({ progress, reducedMotion, mobile }: { progres
     };
   }, [camera, reducedMotion]);
   useFrame((_, delta) => {
-    const scroll = sampleScrollCamera(progress.current, reducedMotion, mobile);
+    const scroll = sampleScrollCamera(progress.current, reducedMotion, mobile, size.width / size.height);
     const targetX = reducedMotion ? 0 : pointer.current.x * .28;
     const targetY = reducedMotion ? 0 : pointer.current.y * .18;
     // Lenis smooths scroll already; only pointer parallax needs extra damping.
