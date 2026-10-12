@@ -37,3 +37,13 @@ export function sampleStory(value: number): StoryPose {
     glow: Math.sin(dock * Math.PI) * .8 + finish * .12,
   };
 }
+
+export function presentation(p: number, mobile: boolean) {
+  const pose = sampleStory(p);
+  const end = smooth(.4, 1, p);
+  return {
+    position: [mobile ? .05 : .65, pose.position[1] + (mobile ? lerp(-.85, .14, end) : 0), 0] as Vec3,
+    scale: pose.scale * (mobile ? lerp(.65, .85, end) : 1),
+    rotation: pose.rotation,
+  };
+}
