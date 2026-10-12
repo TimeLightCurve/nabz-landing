@@ -9,7 +9,7 @@ export default function Experience({ children }: { children: ReactNode }) {
   const container = useRef<HTMLElement>(null);
   const menuButton = useRef<HTMLButtonElement>(null);
   const firstLink = useRef<HTMLAnchorElement>(null);
-  const { progress, chapter } = useStoryProgress(container);
+  const { progress, chapter, lenis } = useStoryProgress(container);
   const [menu, setMenu] = useState(false);
   const [reduced, setReduced] = useState(false);
   const [ready, setReady] = useState(false);
@@ -40,7 +40,7 @@ export default function Experience({ children }: { children: ReactNode }) {
     return () => window.removeEventListener('keydown', close);
   }, [menu]);
   function navigate(index: number) {
-    jumpToChapter(container.current, index, reduced); setMenu(false); menuButton.current?.focus();
+    jumpToChapter(container.current, index, reduced, lenis.current); setMenu(false); menuButton.current?.focus({ preventScroll: true });
   }
   return <main ref={container} className="nava-story" data-chapter={chapter} data-ready={ready}>
     <div className="chapter-anchors" aria-hidden="true">{CHAPTERS.map(item => <span id={item.id} key={item.id} style={{ top: `${item.progress * 100}%` }} />)}</div>

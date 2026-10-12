@@ -5,13 +5,13 @@ import { useEffect, useMemo, useRef, type RefObject } from 'react';
 import { Euler, Group, Matrix4, Mesh, MeshStandardMaterial, PointLight, Quaternion, Vector3 } from 'three';
 import { resolveAssembly, solveDockPose } from '@/lib/nava/assembly';
 import { sampleStory, smooth, presentation } from '@/lib/nava/timeline';
+import { sampleFloat } from '@/lib/nava/motion';
 export default function Product({ progress, reducedMotion, mobile, onReady }: { progress: RefObject<number>; reducedMotion: boolean; mobile: boolean; onReady: () => void }) {
   const wrist = useGLTF('/wristband.glb');
   const modular = useGLTF('/nava-modular.glb');
   const assembly = useMemo(() => resolveAssembly(wrist.scene, modular.scene), [wrist.scene, modular.scene]);
   const stage = useRef<Group>(null);
   const magneticLight = useRef<PointLight>(null);
-  const current = useRef(progress.current);
   const math = useMemo(() => ({ matrix: new Matrix4(), q: new Quaternion(), e: new Euler(), pos: new Vector3(), marker: new Vector3(), scale: new Vector3(1, 1, 1) }), []);
   const mats = useMemo(() => {
     const collect = (root: Group) => { const result: MeshStandardMaterial[] = []; root.traverse(n => { if (n instanceof Mesh) result.push(n.material as MeshStandardMaterial); }); return result; };
@@ -22,18 +22,19 @@ export default function Product({ progress, reducedMotion, mobile, onReady }: { 
   }, [assembly]);
   useEffect(() => { onReady(); }, [onReady]);
   useEffect(() => () => { Object.values(mats).flat().forEach(material => material.dispose()); }, [mats]);
-  useFrame(({ clock, pointer }, delta) => {
+  useFrame(({ clock }) => {
     const raw = progress.current;
-    current.current += (raw - current.current) * (1 - Math.exp(-delta * 8));
-    let p = current.current;
+    // Lenis already smooths native scroll. Keep product and chapter timing in sync.
+    let p = raw;
     if (reducedMotion) p = raw < .19 ? 0 : raw < .39 ? .36 : raw < .65 ? .53 : raw < .83 ? .8 : 1;
     const pose = sampleStory(p);
     const framing = presentation(p, mobile);
     const root = stage.current;
     if (!root) return;
-    const idle = reducedMotion ? 0 : (1 - smooth(.1, .25, p) + smooth(.85, 1, p)) * .018;
-    root.rotation.set(pose.rotation[0] + Math.sin(clock.elapsedTime * .55) * idle, pose.rotation[1] + pointer.x * idle, pose.rotation[2] + Math.sin(clock.elapsedTime * .4) * idle);
-    root.position.set(...framing.position);
+    const floating = sampleFloat(clock.elapsedTime, reducedMotion);
+    // Move the shared presentation group so magnetic contact stays exact.
+    root.rotation.set(pose.rotation[0] + floating.rotation[0], pose.rotation[1] + floating.rotation[1], pose.rotation[2] + floating.rotation[2]);
+    root.position.set(framing.position[0] + floating.position[0], framing.position[1] + floating.position[1], framing.position[2] + floating.position[2]);
     root.scale.setScalar(framing.scale);
     assembly.wrist.position.x = pose.wristX;
     assembly.necklace.position.x = pose.necklaceX;

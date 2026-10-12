@@ -1,6 +1,6 @@
 ﻿# NAVA landing page
 
-A cinematic, scroll-driven product story built with Next.js and React Three Fiber. NAVA lifts from its wrist cradle, moves toward the necklace, and attaches to its magnetic adapter. Scroll upward to reverse the sequence, or use Explore to jump between chapters.
+A cinematic, scroll-driven product story built with Next.js and React Three Fiber. NAVA lifts from its wrist cradle, moves toward the necklace, and attaches to its magnetic adapter. Lenis smooths scrolling and chapter navigation; a damped pointer camera and gentle floating motion bring the scene to life. Scroll upward to reverse the sequence, or use Explore to jump between chapters.
 
 ## Local preview
 
@@ -9,7 +9,7 @@ Run `npm run dev` and open http://localhost:3000. The existing local development
 ## Checks
 
 ```sh
-node --experimental-strip-types --test tests/nava-assembly.test.ts tests/nava-timeline.test.ts
+node --experimental-strip-types --test tests/nava-assembly.test.ts tests/nava-timeline.test.ts tests/nava-motion.test.ts
 npx tsc --noEmit
 npm run build
 ```
@@ -23,6 +23,9 @@ Node 22.12 or newer supports the test command. The experimental type-stripping w
 - `lib/nava/timeline.ts`: scroll phases and responsive product framing.
 - `lib/nava/assembly.ts`: model normalization and material appearance.
 - `components/nava/scene.tsx`: camera and lighting.
+- `components/nava/camera-rig.tsx`: damped pointer parallax.
+- `lib/nava/motion.ts`: floating position and rotation amplitudes.
+- `components/nava/use-story-progress.ts`: Lenis smoothing and chapter navigation.
 - `components/nava/atmosphere.tsx`: procedural rings, haze, and particles.
 
 Required local assets are `public/wristband.glb`, `public/nava-modular.glb`, and `public/noise-r.png`. The saved `aether-files` directory is reference-only and excluded from TypeScript compilation. The root file named `scene-258.glb` contains JavaScript and is not loaded.

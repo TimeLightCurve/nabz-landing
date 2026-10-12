@@ -4,6 +4,7 @@ import { Environment, Lightformer, useGLTF } from '@react-three/drei';
 import { Suspense, useEffect, useState, type RefObject } from 'react';
 import Product from './product';
 import Atmosphere from './atmosphere';
+import CameraRig from './camera-rig';
 function Visibility() {
   const { setFrameloop, invalidate } = useThree();
   useEffect(() => {
@@ -27,6 +28,7 @@ export default function Scene({ progress, reducedMotion, onReady, attempt }: { p
   if (!cacheReady) return null;
   return <Canvas aria-label="NAVA device transforming from wristband to necklace" dpr={[1, mobile ? 1.25 : 1.75]} camera={{ position: [0, 0, 10], fov: mobile ? 48 : 36, near: .1, far: 60 }} gl={{ alpha: true, antialias: true, powerPreference: 'high-performance' }}>
     <Visibility />
+    <CameraRig reducedMotion={reducedMotion} />
     <ambientLight intensity={.65} color="#9fc9e5" />
     <directionalLight position={[2, 5, 5]} intensity={4} color="#d0eaff" />
     <directionalLight position={[-4, 0, 2]} intensity={5} color="#4cafff" />
