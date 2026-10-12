@@ -16,6 +16,7 @@
 .chapter-menu[data-open="true"] .menu-app-link { opacity: 1; transition-delay: .5s; }
 .side-index button span { font-size: 12px; }
 .side-index button i { width: 3px; height: 3px; }
+.chapter-menu { left: auto; }
 .chapter h1, .chapter h2 { margin-top: 0; }
 .chapter-description p { margin-bottom: 0; }
 .details-intro h2 { margin-top: 0; }
@@ -27,6 +28,8 @@
   .side-index button span { font-size: 10px; }
   .details-intro > p:not(.details-eyebrow) { display: block; margin: 10px 0 0; font-size: 13px; line-height: 1.45; max-width: 36ch; }
   .chapter-description .eyebrow, .chapter-note { display: none; }
+  .chapter .chapter-description { display: block; top: calc(13% + 90px); bottom: auto; left: 24px; right: 40px; width: auto; max-width: 34ch; }
+  .chapter .chapter-description p { display: block; font-size: 14px; line-height: 1.45; }
 }
 @media(max-height:620px) { .chapter-menu { height: calc(100svh - 48px); padding-top: 64px; gap: 12px; } .menu-links { padding-top: 14px; } .chapter-menu .menu-links a { font-size: 28px; } }
 @media(prefers-reduced-motion:reduce) { .chapter-menu, .chapter-menu .menu-links a, .chapter-menu .menu-app-link, .menu-dismiss, .menu-icon { transition: none !important; transform: none; } }
