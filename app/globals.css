@@ -746,3 +746,29 @@ button:focus-visible,a:focus-visible {
   .side-index { right: 8px; gap: 6px; }
   .side-index button { min-width: 32px; min-height: 32px; padding: 8px; }
 }
+/* Readable supporting UI at desktop viewing distance. */
+.header-caption { font-size: 15px; color: #c5d8e4; }
+.menu-toggle { font-size: 18px; min-height: 60px; width: 220px; }
+.chapter-tag { font-size: 15px; }
+.chapter-note { font-size: 18px; }
+.chapter-description p { font-size: 21px; }
+.chapter-description .eyebrow { font-size: 15px; }
+.chapter-counter { font-size: 18px; }
+.side-index button span { font-size: 16px; }
+.scroll-prompt { font-size: 14px; min-height: 56px; }
+.footer-caption { font-size: 13px; width: 310px; }
+.hardware-label, .hardware-caption { font-size: 18px; }
+@media(max-width: 1100px) {
+  .hardware-label, .hardware-caption { font-size: 14px; }
+  .footer-caption { font-size: 11px; width: 235px; }
+}
+@media(max-width: 767px) {
+  .menu-toggle { font-size: 14px; min-height: 48px; width: 145px; }
+  .chapter-tag { font-size: 12px; }
+  .chapter-note { font-size: 14px; }
+  .chapter-description p { font-size: 17px; }
+  .chapter-description .eyebrow { font-size: 12px; }
+  .chapter-counter { font-size: 14px; }
+  .scroll-prompt { font-size: 11px; min-height: 46px; padding: 10px 12px; }
+  .hardware-label, .hardware-caption { font-size: 13px; }
+}

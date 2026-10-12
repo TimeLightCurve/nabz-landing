@@ -2,6 +2,8 @@
 
 ## Passed
 
+- Latest live-browser verification: launched an isolated headless Chrome against localhost:3000 and reproduced missing annotations and small type. Computed styles showed stale development CSS (`position: static` on the SVG, 9px menu). Restarted the task's Next development server. Desktop 1840×980 and mobile 390×844 screenshots now visibly show the circle and both callouts; computed menu sizes are 18px/14px and SVG bounds match the canvas. No browser page errors occurred. This supersedes the screenshot limitation below for these two tested views.
+
 - Thirteen Node tests: dock contact transforms, missing-node diagnostics, actual supplied GLB normalization, desktop/mobile vertex projection across eleven stages, exact timeline endpoints, finite deterministic pose samples, phase continuity, release order, bounded floating, continuous scroll response, reduced-motion poses, and progressive hardware ring/label timing.
 - TypeScript: `npx tsc --noEmit` exits successfully.
 - Production build: `npm run build` completes and statically renders the home route.
